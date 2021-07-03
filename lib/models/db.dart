@@ -5,7 +5,7 @@ part 'db.g.dart';
 @HiveType(typeId: 0)
 class Transaction extends HiveObject {
   @HiveField(0)
-  late String name;
+  late String payee;
 
   @HiveField(1)
   late String account;

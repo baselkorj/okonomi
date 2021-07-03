@@ -41,10 +41,6 @@ class _HomeState extends State<Home> {
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.event)),
           IconButton(
-            icon: Icon(Icons.print),
-            onPressed: () {},
-          ),
-          IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {},
           )
@@ -92,9 +88,9 @@ class _HomeState extends State<Home> {
             onPressed: () {
               // Add your onPressed code here!
             },
-            label: Text('Income'),
-            icon: Icon(Icons.add),
-            backgroundColor: color4,
+            label: Text('Export'),
+            icon: Icon(Icons.print),
+            backgroundColor: color1,
             elevation: 4,
           ),
           SizedBox(height: height * 0.01),
@@ -102,9 +98,9 @@ class _HomeState extends State<Home> {
             onPressed: () {
               // Add your onPressed code here!
             },
-            label: Text('Expense'),
-            icon: Icon(Icons.remove),
-            backgroundColor: color1,
+            label: Text('Transaction'),
+            icon: Icon(Icons.add),
+            backgroundColor: color4,
             elevation: 4,
           ),
         ],

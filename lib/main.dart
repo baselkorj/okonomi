@@ -3,6 +3,7 @@ import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/home.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:okonomi/screens/transaction.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: Home(),
+      home: AddTransaction(),
     );
   }
 }
