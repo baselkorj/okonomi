@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/categories.dart';
 import 'package:okonomi/models/colors.dart';
+import 'package:okonomi/models/db.dart';
 
 class AddTransaction extends StatefulWidget {
   const AddTransaction({Key? key}) : super(key: key);
@@ -13,11 +15,12 @@ class AddTransaction extends StatefulWidget {
 final _formKey = GlobalKey<FormState>();
 
 class _AddTransactionState extends State<AddTransaction> {
+  int _category = 0;
   int _type = 0;
-  int _amount = 0;
-  String _name = '';
+  String _amount = '';
+  String _currency = 'OMR';
   String _payee = '';
-  String _category = '';
+  String _note = '';
   Color _color = color1;
   DateTime _dateTime = DateTime.now();
 
@@ -68,7 +71,7 @@ class _AddTransactionState extends State<AddTransaction> {
             // Transaction Type
             Card(
               child: Padding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(height * 0.01),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -77,7 +80,7 @@ class _AddTransactionState extends State<AddTransaction> {
                       style:
                           TextStyle(color: _color, fontWeight: FontWeight.w700),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: height * 0.01),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -86,22 +89,23 @@ class _AddTransactionState extends State<AddTransaction> {
                             onTap: () {
                               setState(() {
                                 _type = 0;
+                                _category = 0;
                               });
                             },
                             child: Container(
-                              height: 60,
+                              height: height * 0.06,
                               decoration: BoxDecoration(
                                   color: _type == 0 ? color2 : Colors.grey,
                                   borderRadius: BorderRadius.circular(5)),
                               child: Row(
                                 children: [
-                                  SizedBox(width: 15),
+                                  SizedBox(width: height * 0.015),
                                   Icon(
                                     Icons.move_to_inbox,
                                     color: Colors.white,
-                                    size: 45,
+                                    size: height * 0.045,
                                   ),
-                                  SizedBox(width: 10),
+                                  SizedBox(width: height * 0.01),
                                   Text(
                                     'Income',
                                     style: TextStyle(
@@ -113,28 +117,29 @@ class _AddTransactionState extends State<AddTransaction> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 15),
+                        SizedBox(width: height * 0.01),
                         Expanded(
                           child: InkWell(
                             onTap: () {
                               setState(() {
                                 _type = 1;
+                                _category = 0;
                               });
                             },
                             child: Container(
-                              height: 60,
+                              height: height * 0.06,
                               decoration: BoxDecoration(
                                   color: _type == 1 ? color1 : Colors.grey,
                                   borderRadius: BorderRadius.circular(5)),
                               child: Row(
                                 children: [
-                                  SizedBox(width: 20),
+                                  SizedBox(width: height * 0.015),
                                   Icon(
                                     Icons.outbox,
                                     color: Colors.white,
-                                    size: 45,
+                                    size: height * 0.045,
                                   ),
-                                  SizedBox(width: 10),
+                                  SizedBox(width: height * 0.01),
                                   Text(
                                     'Expense',
                                     style: TextStyle(
@@ -171,12 +176,27 @@ class _AddTransactionState extends State<AddTransaction> {
                         SizedBox(height: 10),
                         TextFormField(
                             decoration: buildInputDecoration()
-                                .copyWith(prefixText: 'OMR  '),
-                            keyboardType: TextInputType.number,
+                                .copyWith(prefixText: '${_currency}  '),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r"[0-9.]")),
+                              TextInputFormatter.withFunction(
+                                  (oldValue, newValue) {
+                                try {
+                                  final text = newValue.text;
+                                  if (text.isNotEmpty) double.parse(text);
+                                  return newValue;
+                                } catch (e) {}
+                                return oldValue;
+                              }),
+                            ],
+                            keyboardType: TextInputType.numberWithOptions(
+                              decimal: true,
+                              signed: false,
+                            ),
                             maxLength: 6,
                             validator: (val) {},
-                            onChanged: (val) =>
-                                setState(() => _amount = val as int)),
+                            onChanged: (val) => setState(() => _amount = val)),
                       ],
                     ),
                   ),
@@ -199,7 +219,7 @@ class _AddTransactionState extends State<AddTransaction> {
                         TextFormField(
                             decoration: buildInputDecoration(),
                             validator: (val) {},
-                            onChanged: (val) => setState(() => _name = val)),
+                            onChanged: (val) => setState(() => _payee = val)),
                       ],
                     ),
                   ),
@@ -214,7 +234,7 @@ class _AddTransactionState extends State<AddTransaction> {
                 Expanded(
                   child: Card(
                     child: Padding(
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.all(height * 0.01),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -275,6 +295,13 @@ class _AddTransactionState extends State<AddTransaction> {
                                                               color:
                                                                   Colors.white),
                                                         ),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            _category = index;
+                                                          });
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
                                                       );
                                                     },
                                                   )
@@ -286,51 +313,49 @@ class _AddTransactionState extends State<AddTransaction> {
                                                     itemBuilder:
                                                         (context, index) {
                                                       return ListTile(
-                                                        title: Text(
-                                                            incomeCategories
-                                                                    .keys
-                                                                    .toList()[
-                                                                index]),
-                                                        contentPadding:
-                                                            EdgeInsets.only(
-                                                                left: 0.0,
-                                                                right: 0.0),
-                                                        leading: CircleAvatar(
-                                                          backgroundColor:
-                                                              _color,
-                                                          child: Icon(
+                                                          title: Text(
                                                               incomeCategories
-                                                                      .values
+                                                                      .keys
                                                                       .toList()[
-                                                                  index],
-                                                              color:
-                                                                  Colors.white),
-                                                        ),
-                                                      );
+                                                                  index]),
+                                                          contentPadding:
+                                                              EdgeInsets.only(
+                                                                  left: 0.0,
+                                                                  right: 0.0),
+                                                          leading: CircleAvatar(
+                                                            backgroundColor:
+                                                                _color,
+                                                            child: Icon(
+                                                                incomeCategories
+                                                                        .values
+                                                                        .toList()[
+                                                                    index],
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                          onTap: () {
+                                                            setState(() {
+                                                              _category = index;
+                                                            });
+                                                            Navigator.pop(
+                                                                context);
+                                                          });
                                                     },
                                                   )),
                                         actions: <Widget>[
-                                          TextButton(
-                                            child: Text('Cancel'),
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            style: ButtonStyle(
-                                                foregroundColor:
-                                                    MaterialStateProperty.all<
-                                                        Color>(Colors.black54)),
-                                          ),
                                           ElevatedButton(
-                                              child: Text('Yes',
+                                              child: Text('Cancel',
                                                   style: TextStyle(
                                                       color: Colors.white)),
                                               style: ElevatedButton.styleFrom(
                                                   primary: _color),
-                                              onPressed: () async {})
+                                              onPressed: () =>
+                                                  Navigator.pop(context)),
                                         ],
                                       ));
                             },
                             child: Container(
-                              height: 50,
+                              height: height * 0.05,
                               decoration: BoxDecoration(
                                   color: _color,
                                   borderRadius: BorderRadius.circular(5)),
@@ -339,12 +364,18 @@ class _AddTransactionState extends State<AddTransaction> {
                                 children: [
                                   SizedBox(width: 20),
                                   Icon(
-                                    Icons.local_grocery_store,
+                                    _type == 1
+                                        ? expenseCategories.values
+                                            .toList()[_category]
+                                        : incomeCategories.values
+                                            .toList()[_category],
                                     color: Colors.white,
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    'Grocery',
+                                    _type == 1
+                                        ? '${expenseCategories.keys.toList()[_category]}'
+                                        : '${incomeCategories.keys.toList()[_category]}',
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700),
@@ -373,15 +404,23 @@ class _AddTransactionState extends State<AddTransaction> {
                           ),
                           SizedBox(height: 10),
                           InkWell(
-                            onTap: () {
-                              showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(0),
-                                  lastDate: DateTime.now());
+                            onTap: () async {
+                              final DateTime? selectedDate =
+                                  await showDatePicker(
+                                      context: context,
+                                      initialDate: _dateTime,
+                                      firstDate: DateTime(0),
+                                      lastDate: DateTime.now());
+                              if (selectedDate != null &&
+                                  selectedDate != _dateTime)
+                                setState(() {
+                                  _dateTime = selectedDate;
+                                });
+
+                              print(_dateTime);
                             },
                             child: Container(
-                              height: 50,
+                              height: height * 0.05,
                               decoration: BoxDecoration(
                                   color: _color,
                                   borderRadius: BorderRadius.circular(5)),
@@ -425,7 +464,7 @@ class _AddTransactionState extends State<AddTransaction> {
                     TextFormField(
                         decoration: buildInputDecoration(),
                         validator: (val) {},
-                        onChanged: (val) => setState(() => _name = val)),
+                        onChanged: (val) => setState(() => _payee = val)),
                   ],
                 ),
               ),
@@ -434,6 +473,21 @@ class _AddTransactionState extends State<AddTransaction> {
         ),
       ),
     );
+  }
+
+  Future addTransaction(String payee, String account, String category,
+      String note, String type, double amount, DateTime dateTime) async {
+    final transaction = Transaction()
+      ..payee = payee
+      ..account = account
+      ..category = category
+      ..note = note
+      ..type = type
+      ..amount = amount
+      ..dateTime = dateTime;
+
+    final box = Boxes.getTransactions();
+    box.add(transaction);
   }
 
   InputDecoration buildInputDecoration() {

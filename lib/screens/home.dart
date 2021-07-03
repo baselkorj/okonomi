@@ -261,17 +261,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-// Future addTransaction(String name, String account, String category,
-//       String note, String type, double amount, DateTime dateTime) async {
-//     final transaction = Transaction()
-//       ..name = name
-//       ..account = account
-//       ..category = category
-//       ..note = note
-//       ..type = type
-//       ..amount = amount
-//       ..dateTime = dateTime;
-
-//     setState(() => transaction.add(transaction));
-//   }
