@@ -30,7 +30,7 @@ class Transaction extends HiveObject {
   late String note;
 
   @HiveField(4)
-  late String type;
+  late int type;
 
   @HiveField(5)
   late double amount;

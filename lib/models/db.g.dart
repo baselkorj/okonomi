@@ -60,7 +60,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       ..account = fields[1] as String
       ..category = fields[2] as String
       ..note = fields[3] as String
-      ..type = fields[4] as String
+      ..type = fields[4] as int
       ..amount = fields[5] as double
       ..dateTime = fields[6] as DateTime;
   }
