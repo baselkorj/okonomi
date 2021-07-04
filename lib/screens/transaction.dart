@@ -476,7 +476,7 @@ class _AddTransactionState extends State<AddTransaction> {
   }
 
   Future addTransaction(String payee, String account, String category,
-      String note, String type, double amount, DateTime dateTime) async {
+      String note, int type, double amount, DateTime dateTime) async {
     final transaction = Transaction()
       ..payee = payee
       ..account = account
