@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:okonomi/models/colors.dart';
+import 'package:okonomi/screens/accounts.dart';
+import 'package:okonomi/screens/transaction.dart';
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -23,19 +25,22 @@ class _HomeState extends State<Home> {
       // App Bar
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black87),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Personal',
-              style: TextStyle(color: Colors.black87),
-            ),
-            SizedBox(height: height * 0.002),
-            Text(
-              "Aug 2021",
-              style: TextStyle(color: Colors.black54, fontSize: height * 0.014),
-            )
-          ],
+        title: InkWell(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Personal',
+                style: TextStyle(color: Colors.black87),
+              ),
+              SizedBox(height: height * 0.002),
+              Text(
+                "Aug 2021",
+                style:
+                    TextStyle(color: Colors.black54, fontSize: height * 0.014),
+              )
+            ],
+          ),
         ),
         backgroundColor: Colors.white,
         actions: [
@@ -107,22 +112,70 @@ class _HomeState extends State<Home> {
                         ],
                       )
                     ],
+                  ),
+                  ExpansionTile(
+                    title: Text(
+                      'Family',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    leading: CircleAvatar(backgroundColor: color2),
+                    trailing: ElevatedButton(
+                        child: Text('Select',
+                            style: TextStyle(color: Colors.white)),
+                        style: ElevatedButton.styleFrom(primary: color2),
+                        onPressed: () => Navigator.pop(context)),
+                    childrenPadding: EdgeInsets.symmetric(
+                        horizontal: height * 0.02, vertical: height * 0.01),
+                    initiallyExpanded: true,
+                    children: [
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Opening Balance'), Text('OMR800')],
+                          ),
+                          SizedBox(height: height * 0.005),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Income'), Text('OMR320')],
+                          ),
+                          SizedBox(height: height * 0.005),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Expenses'), Text('OMR20')],
+                          ),
+                          SizedBox(height: height * 0.002),
+                          Divider(
+                              thickness: 2,
+                              indent: 1,
+                              endIndent: 1,
+                              color: color2),
+                          SizedBox(height: height * 0.002),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Total'), Text('OMR900')],
+                          ),
+                        ],
+                      )
+                    ],
                   )
                 ],
               ),
             ),
-            // This container holds the align
             Container(
-                // This align moves the children to the bottom
                 child: Align(
                     alignment: FractionalOffset.bottomCenter,
-                    // This container holds all the children that will be aligned
-                    // on the bottom and should not scroll with the above ListView
                     child: Container(
                         child: Column(
                       children: <Widget>[
                         Divider(),
                         ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Accounts()));
+                            },
                             leading: Icon(Icons.settings, size: height * 0.032),
                             title: Text('Manage Accounts')),
                       ],
@@ -147,7 +200,8 @@ class _HomeState extends State<Home> {
           SizedBox(height: height * 0.01),
           FloatingActionButton.extended(
             onPressed: () {
-              // Add your onPressed code here!
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddTransaction()));
             },
             label: Text('Transaction'),
             icon: Icon(Icons.add),
