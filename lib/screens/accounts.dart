@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/colors.dart';
 import 'package:okonomi/models/db.dart';
@@ -16,7 +18,7 @@ final _formKey = GlobalKey<FormState>();
 class _AccountsState extends State<Accounts> {
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
+    double h = MediaQuery.of(context).size.height;
     return Form(
       key: _formKey,
       child: Scaffold(
@@ -27,6 +29,7 @@ class _AccountsState extends State<Accounts> {
           backgroundColor: Colors.black87,
         ),
         floatingActionButton: FloatingActionButton.extended(
+          heroTag: 'add_account',
           onPressed: () {
             showDialog<String>(
                 context: context,
@@ -54,13 +57,12 @@ class _AccountsState extends State<Accounts> {
                             SizedBox(height: 10),
                             TextFormField(
                                 decoration: buildInputDecoration(),
-                                maxLength: 6,
                                 validator: (val) {},
                                 onChanged: (val) =>
                                     setState(() => _currentName = val)),
-                            SizedBox(height: height * 0.015),
+                            SizedBox(height: h * 0.015),
                             Text(
-                              'Amount',
+                              'Starting Amount',
                               style: TextStyle(
                                   color: color1, fontWeight: FontWeight.w700),
                             ),
@@ -88,13 +90,13 @@ class _AccountsState extends State<Accounts> {
                                 validator: (val) {},
                                 onChanged: (val) =>
                                     setState(() => _currentOpenAmount = val)),
-                            SizedBox(height: height * 0.015),
+                            SizedBox(height: h * 0.015),
                             Text(
                               'Color Tag',
                               style: TextStyle(
                                   color: color1, fontWeight: FontWeight.w700),
                             ),
-                            SizedBox(height: height * 0.01),
+                            SizedBox(height: h * 0.01),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
@@ -187,6 +189,7 @@ class _AccountsState extends State<Accounts> {
                             onPressed: () {
                               addAccount(_currentName, _currentCurrency,
                                   _currentColor, int.parse(_currentOpenAmount));
+                              Navigator.pop(context);
                             },
                           )
                         ],
@@ -200,91 +203,132 @@ class _AccountsState extends State<Accounts> {
           backgroundColor: color1,
           elevation: 4,
         ),
-        body: ListView(
-          physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-              horizontal: height * 0.01, vertical: height * 0.01),
-          children: <Widget>[
-            Card(
-              child: ListTile(
-                leading: CircleAvatar(backgroundColor: color1),
-                title: Text('Personal'),
-                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                  InkWell(
-                    onTap: () {
-                      showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                                title: Text(
-                                  'Edit Account',
-                                  style: TextStyle(height: 1.5),
-                                ),
-                                content: Text(
-                                  "Are you sure you want to delete this account? You won't be able to recover any data under it.",
-                                  style: TextStyle(color: Colors.black45),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text('Cancel')),
-                                  ElevatedButton(
-                                      child: Text('Save',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      style: ElevatedButton.styleFrom(
-                                          primary: color2),
-                                      onPressed: () => Navigator.pop(context)),
-                                ],
-                              ));
-                    },
-                    child: Container(
-                        padding: EdgeInsets.all(height * 0.005),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(height * 0.005)),
-                            color: color2),
-                        child: Icon(Icons.edit, color: Colors.white)),
-                  ),
-                  SizedBox(width: height * 0.015),
-                  InkWell(
-                    onTap: () {
-                      showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                                title: Text(
-                                  'Delete Account?',
-                                  style: TextStyle(height: 1.5),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [],
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text('Cancel')),
-                                  ElevatedButton(
-                                      child: Text('Delete',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      style: ElevatedButton.styleFrom(
-                                          primary: color1),
-                                      onPressed: () => Navigator.pop(context)),
-                                ],
-                              ));
-                    },
-                    child: Container(
-                        padding: EdgeInsets.all(height * 0.005),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(height * 0.005)),
-                            color: color1),
-                        child: Icon(Icons.delete, color: Colors.white)),
-                  )
-                ]),
-              ),
-            )
-          ],
+        body: ValueListenableBuilder<Box<Account>>(
+          valueListenable: Boxes.getAccounts().listenable(),
+          builder: (context, box, _) {
+            final accounts = box.values.toList().cast<Account>();
+
+            if (accounts.isEmpty) {
+              return Center(
+                  child: Card(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: h * 0.03, vertical: h * 0.01),
+                  child: (Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.search_off_rounded,
+                        size: h * 0.10,
+                        color: Colors.black45,
+                      ),
+                      SizedBox(height: h * 0.015),
+                      Text(
+                        'No accounts found.',
+                        style: TextStyle(color: Colors.black45),
+                      ),
+                      Text('Add an account to get started.',
+                          style: TextStyle(color: Colors.black45))
+                    ],
+                  )),
+                ),
+              ));
+            } else {
+              return ListView.builder(
+                physics: BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                    horizontal: h * 0.01, vertical: h * 0.01),
+                itemCount: accounts.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final account = accounts[index];
+                  return Card(
+                    child: ListTile(
+                      leading:
+                          CircleAvatar(backgroundColor: Color(account.color)),
+                      title: Text('${account.name}'),
+                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                        InkWell(
+                          onTap: () {
+                            showDialog<String>(
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                        'Edit Account',
+                                        style: TextStyle(height: 1.5),
+                                      ),
+                                      content: Text(
+                                        "Are you sure you want to delete this account? You won't be able to recover any data under it.",
+                                        style: TextStyle(color: Colors.black45),
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text('Cancel')),
+                                        ElevatedButton(
+                                            child: Text('Save',
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            style: ElevatedButton.styleFrom(
+                                                primary: color2),
+                                            onPressed: () =>
+                                                Navigator.pop(context)),
+                                      ],
+                                    ));
+                          },
+                          child: Container(
+                              padding: EdgeInsets.all(h * 0.005),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(h * 0.005)),
+                                  color: color2),
+                              child: Icon(Icons.edit, color: Colors.white)),
+                        ),
+                        SizedBox(width: h * 0.015),
+                        InkWell(
+                          onTap: () {
+                            showDialog<String>(
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                        'Delete Account?',
+                                        style: TextStyle(height: 1.5),
+                                      ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [],
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text('Cancel')),
+                                        ElevatedButton(
+                                            child: Text('Delete',
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            style: ElevatedButton.styleFrom(
+                                                primary: color1),
+                                            onPressed: () =>
+                                                Navigator.pop(context)),
+                                      ],
+                                    ));
+                          },
+                          child: Container(
+                              padding: EdgeInsets.all(h * 0.005),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(h * 0.005)),
+                                  color: color1),
+                              child: Icon(Icons.delete, color: Colors.white)),
+                        )
+                      ]),
+                    ),
+                  );
+                },
+              );
+            }
+          },
         ),
       ),
     );
