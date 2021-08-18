@@ -3,7 +3,6 @@ import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/home.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:okonomi/screens/transaction.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,9 +12,11 @@ void main() async {
 
   // Register Hive Adapter from Generated File
   Hive.registerAdapter(TransactionAdapter());
+  Hive.registerAdapter(AccountAdapter());
 
-  // Create the Transactions Box
+  // Open the Transactions & Accounts Box
   await Hive.openBox<Transaction>('transactions');
+  await Hive.openBox<Account>('accounts');
 
   runApp(MyApp());
 }
