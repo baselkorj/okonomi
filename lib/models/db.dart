@@ -8,22 +8,22 @@ class Account extends HiveObject {
   late String name;
 
   @HiveField(2)
-  late String currency;
+  late int currency;
 
   @HiveField(3)
   late int color;
 
   @HiveField(4)
-  late int openAmount;
+  late double openAmount;
 
   @HiveField(5)
-  late int income;
+  late double income;
 
   @HiveField(6)
-  late int expense;
+  late double expense;
 
   @HiveField(7)
-  late int total;
+  late double total;
 }
 
 // Transactions
