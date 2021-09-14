@@ -18,12 +18,12 @@ class AccountAdapter extends TypeAdapter<Account> {
     };
     return Account()
       ..name = fields[1] as String
-      ..currency = fields[2] as String
+      ..currency = fields[2] as int
       ..color = fields[3] as int
-      ..openAmount = fields[4] as int
-      ..income = fields[5] as int
-      ..expense = fields[6] as int
-      ..total = fields[7] as int;
+      ..openAmount = fields[4] as double
+      ..income = fields[5] as double
+      ..expense = fields[6] as double
+      ..total = fields[7] as double;
   }
 
   @override
