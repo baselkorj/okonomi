@@ -27,9 +27,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Okonomi Finance Manager',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-      ),
       home: Home(),
     );
   }
