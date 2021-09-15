@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
-import 'package:okonomi/models/categories.dart';
+import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/colors.dart';
 import 'package:okonomi/models/db.dart';
 
 class AddTransaction extends StatefulWidget {
-  const AddTransaction({Key? key}) : super(key: key);
+  final currentKey;
+
+  AddTransaction({this.currentKey});
 
   @override
   _AddTransactionState createState() => _AddTransactionState();
@@ -24,21 +26,6 @@ class _AddTransactionState extends State<AddTransaction> {
   Color _color = color1;
   DateTime _dateTime = DateTime.now();
 
-  List<String> months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
-
   @override
   Widget build(BuildContext context) {
     if (_type == 1) {
@@ -47,11 +34,13 @@ class _AddTransactionState extends State<AddTransaction> {
       _color = color2;
     }
 
-    double height = MediaQuery.of(context).size.height;
+    print(widget.currentKey);
+
     return Form(
       key: _formKey,
       child: Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           title: Text(
             'Add Transaction',
             style: TextStyle(color: Colors.white),
@@ -65,13 +54,12 @@ class _AddTransactionState extends State<AddTransaction> {
         body: ListView(
           shrinkWrap: true,
           physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-              horizontal: height * 0.01, vertical: height * 0.015),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           children: [
             // Transaction Type
             Card(
               child: Padding(
-                padding: EdgeInsets.all(height * 0.01),
+                padding: EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -80,7 +68,7 @@ class _AddTransactionState extends State<AddTransaction> {
                       style:
                           TextStyle(color: _color, fontWeight: FontWeight.w700),
                     ),
-                    SizedBox(height: height * 0.01),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -93,19 +81,19 @@ class _AddTransactionState extends State<AddTransaction> {
                               });
                             },
                             child: Container(
-                              height: height * 0.06,
+                              height: 60,
                               decoration: BoxDecoration(
                                   color: _type == 0 ? color2 : Colors.grey,
                                   borderRadius: BorderRadius.circular(5)),
                               child: Row(
                                 children: [
-                                  SizedBox(width: height * 0.015),
+                                  SizedBox(width: 15),
                                   Icon(
                                     Icons.move_to_inbox,
                                     color: Colors.white,
-                                    size: height * 0.045,
+                                    size: 45,
                                   ),
-                                  SizedBox(width: height * 0.01),
+                                  SizedBox(width: 10),
                                   Text(
                                     'Income',
                                     style: TextStyle(
@@ -117,7 +105,7 @@ class _AddTransactionState extends State<AddTransaction> {
                             ),
                           ),
                         ),
-                        SizedBox(width: height * 0.01),
+                        SizedBox(width: 10),
                         Expanded(
                           child: InkWell(
                             onTap: () {
@@ -127,19 +115,19 @@ class _AddTransactionState extends State<AddTransaction> {
                               });
                             },
                             child: Container(
-                              height: height * 0.06,
+                              height: 60,
                               decoration: BoxDecoration(
                                   color: _type == 1 ? color1 : Colors.grey,
                                   borderRadius: BorderRadius.circular(5)),
                               child: Row(
                                 children: [
-                                  SizedBox(width: height * 0.015),
+                                  SizedBox(width: 15),
                                   Icon(
                                     Icons.outbox,
                                     color: Colors.white,
-                                    size: height * 0.045,
+                                    size: 45,
                                   ),
-                                  SizedBox(width: height * 0.01),
+                                  SizedBox(width: 10),
                                   Text(
                                     'Expense',
                                     style: TextStyle(
@@ -157,7 +145,7 @@ class _AddTransactionState extends State<AddTransaction> {
                 ),
               ),
             ),
-            SizedBox(height: height * 0.01),
+            SizedBox(height: 10),
 
             // Amount and Payee
             Row(children: [
@@ -202,7 +190,7 @@ class _AddTransactionState extends State<AddTransaction> {
                   ),
                 ),
               ),
-              SizedBox(height: height * 0.01),
+              SizedBox(height: 10),
               Expanded(
                 child: Card(
                   child: Padding(
@@ -226,7 +214,7 @@ class _AddTransactionState extends State<AddTransaction> {
                 ),
               ),
             ]),
-            SizedBox(height: height * 0.01),
+            SizedBox(height: 10),
 
             // Category and Date
             Row(
@@ -234,7 +222,7 @@ class _AddTransactionState extends State<AddTransaction> {
                 Expanded(
                   child: Card(
                     child: Padding(
-                      padding: EdgeInsets.all(height * 0.01),
+                      padding: EdgeInsets.all(10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -355,7 +343,7 @@ class _AddTransactionState extends State<AddTransaction> {
                                       ));
                             },
                             child: Container(
-                              height: height * 0.05,
+                              height: 50,
                               decoration: BoxDecoration(
                                   color: _color,
                                   borderRadius: BorderRadius.circular(5)),
@@ -389,7 +377,7 @@ class _AddTransactionState extends State<AddTransaction> {
                     ),
                   ),
                 ),
-                SizedBox(width: height * 0.005),
+                SizedBox(width: 5),
                 Expanded(
                   child: Card(
                     child: Padding(
@@ -407,10 +395,11 @@ class _AddTransactionState extends State<AddTransaction> {
                             onTap: () async {
                               final DateTime? selectedDate =
                                   await showDatePicker(
-                                      context: context,
-                                      initialDate: _dateTime,
-                                      firstDate: DateTime(0),
-                                      lastDate: DateTime.now());
+                                context: context,
+                                initialDate: _dateTime,
+                                firstDate: DateTime(0),
+                                lastDate: DateTime.now(),
+                              );
                               if (selectedDate != null &&
                                   selectedDate != _dateTime)
                                 setState(() {
@@ -420,7 +409,7 @@ class _AddTransactionState extends State<AddTransaction> {
                               print(_dateTime);
                             },
                             child: Container(
-                              height: height * 0.05,
+                              height: 50,
                               decoration: BoxDecoration(
                                   color: _color,
                                   borderRadius: BorderRadius.circular(5)),
@@ -446,7 +435,7 @@ class _AddTransactionState extends State<AddTransaction> {
                 ),
               ],
             ),
-            SizedBox(height: height * 0.01),
+            SizedBox(height: 10),
 
             // Note
             Card(

@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/colors.dart';
 import 'package:okonomi/models/db.dart';
-import 'package:okonomi/screens/accounts.dart';
+import 'package:okonomi/screens/account_manager/accounts.dart';
 import 'package:okonomi/screens/transaction.dart';
 
 class Home extends StatefulWidget {
@@ -32,6 +32,11 @@ class _HomeState extends State<Home> {
         valueListenable: Boxes.getAccounts().listenable(),
         builder: (context, box, _) {
           final accounts = box.values.toList().cast<Account>();
+
+          if (accounts.isEmpty) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Accounts()));
+          }
 
           if (_updated == false) {
             _selected = accounts[0].key;
