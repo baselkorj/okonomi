@@ -6,6 +6,7 @@ import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/colors.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/account_manager/accounts.dart';
+import 'package:okonomi/screens/account_manager/add_account.dart';
 import 'package:okonomi/screens/transaction.dart';
 
 class Home extends StatefulWidget {
@@ -116,21 +117,26 @@ class _HomeState extends State<Home> {
                                                   ? Color(accounts[index].color)
                                                       .withAlpha(55)
                                                   : Colors.transparent),
-                                      child: ListTile(
-                                        title: Padding(
-                                          padding: EdgeInsets.only(left: 15),
-                                          child: Text(
-                                            '${account.name}',
-                                            style: TextStyle(
-                                              color:
-                                                  Color(accounts[index].color),
-                                              fontSize: 16,
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            title: Padding(
+                                              padding:
+                                                  EdgeInsets.only(left: 15),
+                                              child: Text(
+                                                '${account.name}',
+                                                style: TextStyle(
+                                                  color: Color(
+                                                      accounts[index].color),
+                                                  fontSize: 16,
+                                                ),
+                                              ),
                                             ),
+                                            leading: CircleAvatar(
+                                                backgroundColor:
+                                                    Color(account.color)),
                                           ),
-                                        ),
-                                        leading: CircleAvatar(
-                                            backgroundColor:
-                                                Color(account.color)),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -150,11 +156,11 @@ class _HomeState extends State<Home> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => Accounts()));
+                                            builder: (context) =>
+                                                AddAccountPage()));
                                   },
-                                  leading: Icon(Icons.account_balance_wallet,
-                                      size: 32),
-                                  title: Text('Manage Accounts')),
+                                  leading: Icon(Icons.add_circle, size: 32),
+                                  title: Text('Add an Account')),
                               ListTile(
                                   onTap: () {
                                     Navigator.push(
