@@ -84,7 +84,7 @@ class _AddTransactionState extends State<AddTransaction> {
                               height: 60,
                               decoration: BoxDecoration(
                                   color: _type == 0 ? color2 : Colors.grey,
-                                  borderRadius: BorderRadius.circular(5)),
+                                  borderRadius: BorderRadius.circular(8)),
                               child: Row(
                                 children: [
                                   SizedBox(width: 15),
@@ -118,7 +118,7 @@ class _AddTransactionState extends State<AddTransaction> {
                               height: 60,
                               decoration: BoxDecoration(
                                   color: _type == 1 ? color1 : Colors.grey,
-                                  borderRadius: BorderRadius.circular(5)),
+                                  borderRadius: BorderRadius.circular(8)),
                               child: Row(
                                 children: [
                                   SizedBox(width: 15),
