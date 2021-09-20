@@ -136,7 +136,7 @@ class _AccountsState extends State<Accounts> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('Expenses'),
-                            Text('${account.expense}')
+                            Text('${account.expenses}')
                           ],
                         ),
                         SizedBox(height: 2),
@@ -147,7 +147,10 @@ class _AccountsState extends State<Accounts> {
                             color: Color(account.color)),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [Text('Total'), Text('${account.total}')],
+                          children: [
+                            Text('Total'),
+                            Text('${account.goalLimit}')
+                          ],
                         ),
                       ],
                     )
