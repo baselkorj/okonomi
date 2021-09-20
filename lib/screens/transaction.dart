@@ -190,7 +190,7 @@ class _AddTransactionState extends State<AddTransaction> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(width: 5),
               Expanded(
                 child: Card(
                   child: Padding(
