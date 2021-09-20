@@ -20,10 +20,10 @@ class Account extends HiveObject {
   late double income;
 
   @HiveField(6)
-  late double expense;
+  late double expenses;
 
   @HiveField(7)
-  late double total;
+  late double goalLimit;
 }
 
 // Transactions

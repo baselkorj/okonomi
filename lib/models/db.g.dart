@@ -22,8 +22,8 @@ class AccountAdapter extends TypeAdapter<Account> {
       ..color = fields[3] as int
       ..openAmount = fields[4] as double
       ..income = fields[5] as double
-      ..expense = fields[6] as double
-      ..total = fields[7] as double;
+      ..expenses = fields[6] as double
+      ..goalLimit = fields[7] as double;
   }
 
   @override
@@ -41,9 +41,9 @@ class AccountAdapter extends TypeAdapter<Account> {
       ..writeByte(5)
       ..write(obj.income)
       ..writeByte(6)
-      ..write(obj.expense)
+      ..write(obj.expenses)
       ..writeByte(7)
-      ..write(obj.total);
+      ..write(obj.goalLimit);
   }
 
   @override
