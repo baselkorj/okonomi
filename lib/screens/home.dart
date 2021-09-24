@@ -26,6 +26,10 @@ class _HomeState extends State<Home> {
   var _selected = 0;
   bool _updated = false;
 
+  double _income = 0;
+  double _expense = 0;
+  double _total = 0;
+
   @override
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
@@ -35,14 +39,20 @@ class _HomeState extends State<Home> {
           final accounts = box.values.toList().cast<Account>();
 
           if (accounts.isEmpty) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Accounts()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => AddAccountPage()));
           }
 
+          // Select First Account
           if (_updated == false) {
             _selected = accounts[0].key;
             _updated = true;
           }
+
+          // Update Income, Expense, and Total
+          _income = accounts[_selected].income;
+          _expense = accounts[_selected].expenses;
+          _total = accounts[_selected].openAmount + _income - _expense;
 
           final mybox = Boxes.getAccounts();
           final _currentAccount = mybox.get(_selected);
@@ -246,7 +256,7 @@ class _HomeState extends State<Home> {
                                 ),
                                 SizedBox(height: 15),
                                 Text(
-                                  '124523',
+                                  '$_income',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 28,
@@ -259,7 +269,7 @@ class _HomeState extends State<Home> {
                         ),
                         SizedBox(width: 10),
 
-                        // Spending
+                        // Expense
                         Expanded(
                           child: Container(
                             padding: EdgeInsets.all(10),
@@ -279,14 +289,14 @@ class _HomeState extends State<Home> {
                             child: Column(
                               children: <Widget>[
                                 Text(
-                                  'Spending',
+                                  'Expense',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 15),
                                 Text(
-                                  '124523',
+                                  '$_expense',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 28,
@@ -299,7 +309,7 @@ class _HomeState extends State<Home> {
                         ),
                         SizedBox(width: 10),
 
-                        // Remaining
+                        // Total
                         Expanded(
                           child: Container(
                             padding: EdgeInsets.all(10),
@@ -319,14 +329,14 @@ class _HomeState extends State<Home> {
                             child: Column(
                               children: <Widget>[
                                 Text(
-                                  'Remaining',
+                                  'Total',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 15),
                                 Text(
-                                  '124523',
+                                  '$_total',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 28,

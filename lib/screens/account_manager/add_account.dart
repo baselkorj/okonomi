@@ -1,10 +1,11 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
-import 'package:okonomi/models/colors.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/models/lists.dart';
+import 'package:okonomi/screens/account_manager/account_global.dart' as global;
+import 'package:okonomi/screens/account_manager/currency_chooser.dart';
+import 'package:okonomi/screens/home.dart';
 
 class AddAccountPage extends StatefulWidget {
   const AddAccountPage({Key? key}) : super(key: key);
@@ -16,11 +17,6 @@ class AddAccountPage extends StatefulWidget {
 final _formKey = GlobalKey<FormState>();
 
 class _AddAccountPageState extends State<AddAccountPage> {
-  String _currentName = '';
-  String _currentOpenAmount = '0.0';
-  int _currentCurrency = 0;
-  int _currentColor = 0xFFCB576C;
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -32,18 +28,23 @@ class _AddAccountPageState extends State<AddAccountPage> {
           title: Text(
             'Add Account',
           ),
-          backgroundColor: Color(_currentColor),
+          backgroundColor: Color(global.currentColor),
         ),
 
         // Save Button
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(_currentColor),
+          backgroundColor: Color(global.currentColor),
           child: Icon(Icons.save, color: Colors.white),
           onPressed: () {
             if (_formKey.currentState!.validate()) {
-              addAccount(_currentName, _currentCurrency, _currentColor,
-                  double.parse(_currentOpenAmount));
-              Navigator.pop(context);
+              addAccount(global.currentName, global.currentCurrency.value,
+                  global.currentColor, double.parse(global.currentOpenAmount));
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Home()));
+              global.currentName = '';
+              global.currentOpenAmount = '0.0';
+              global.currentColor = 0xFFCB576C;
+              global.currentCurrency.value = 'AFN';
             } else {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text("Incomplete Form"),
@@ -70,7 +71,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                       Text(
                         'Account Name',
                         style: TextStyle(
-                            color: Color(_currentColor),
+                            color: Color(global.currentColor),
                             fontWeight: FontWeight.w700),
                       ),
                       SizedBox(height: 10),
@@ -83,7 +84,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                             return null;
                           },
                           onChanged: (val) =>
-                              setState(() => _currentName = val)),
+                              setState(() => global.currentName = val)),
                     ],
                   ),
                 ),
@@ -103,7 +104,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                             Text(
                               'Opening Balance',
                               style: TextStyle(
-                                  color: Color(_currentColor),
+                                  color: Color(global.currentColor),
                                   fontWeight: FontWeight.w700),
                             ),
                             SizedBox(height: 10),
@@ -134,8 +135,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
                                   }
                                   return null;
                                 },
-                                onChanged: (val) =>
-                                    setState(() => _currentOpenAmount = val)),
+                                onChanged: (val) => setState(
+                                    () => global.currentOpenAmount = val)),
                           ],
                         ),
                       ),
@@ -152,7 +153,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                             Text(
                               'Goal / Limit',
                               style: TextStyle(
-                                  color: Color(_currentColor),
+                                  color: Color(global.currentColor),
                                   fontWeight: FontWeight.w700),
                             ),
                             SizedBox(height: 10),
@@ -183,8 +184,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
                                   }
                                   return null;
                                 },
-                                onChanged: (val) =>
-                                    setState(() => _currentOpenAmount = val)),
+                                onChanged: (val) => setState(
+                                    () => global.currentOpenAmount = val)),
                           ],
                         ),
                       ),
@@ -194,6 +195,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
               ),
               SizedBox(height: 10),
 
+              // Currency Chooser
               Card(
                   child: Padding(
                 padding: EdgeInsets.all(10),
@@ -203,92 +205,34 @@ class _AddAccountPageState extends State<AddAccountPage> {
                     Text(
                       'Choose Currency',
                       style: TextStyle(
-                          color: Color(_currentColor),
+                          color: Color(global.currentColor),
                           fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 10),
                     Card(
-                      child: ListTile(
-                        title: Text(
-                            '${currenciesSymbolic.values.toList()[_currentCurrency][0]}'),
-                        subtitle: Text(
-                            '${currenciesSymbolic.keys.toList()[_currentCurrency]}'),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: Text(
-                            '${currenciesSymbolic.values.toList()[_currentCurrency][1]}',
-                            style: TextStyle(fontSize: 32),
-                          ),
-                        ),
-                        trailing: Icon(Icons.edit, color: Color(_currentColor)),
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                Map _currentList = searchMap('');
-
-                                return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return AlertDialog(
-                                        title: Text('Choose Currency'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            TextField(
-                                              decoration:
-                                                  buildInputDecoration(),
-                                              onChanged: (val) => setState(() =>
-                                                  _currentList =
-                                                      searchMap(val)),
-                                            ),
-                                            SizedBox(height: 15),
-                                            Container(
-                                              height: 500,
-                                              width: 500,
-                                              child: ListView.builder(
-                                                  physics:
-                                                      BouncingScrollPhysics(),
-                                                  itemCount:
-                                                      _currentList.length,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return Column(
-                                                      children: [
-                                                        ListTile(
-                                                          title: Text(
-                                                              '${_currentList.values.toList()[index][0]}'),
-                                                          subtitle: Text(
-                                                              '${_currentList.keys.toList()[index]}'),
-                                                          leading: CircleAvatar(
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            child: Text(
-                                                              '${_currentList.values.toList()[index][1]}',
-                                                              style: TextStyle(
-                                                                  fontSize: 32),
-                                                            ),
-                                                          ),
-                                                          onTap: () {
-                                                            setState(() {
-                                                              _currentCurrency =
-                                                                  index;
-                                                            });
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                        ),
-                                                        Divider(),
-                                                      ],
-                                                    );
-                                                  }),
-                                            )
-                                          ],
-                                        ));
-                                  },
-                                );
-                              });
+                      child: ValueListenableBuilder(
+                        valueListenable: global.currentCurrency,
+                        builder: (context, value, _) {
+                          return ListTile(
+                            title: Text(
+                                '${currenciesSymbolic[global.currentCurrency.value][0]}'),
+                            subtitle: Text('${global.currentCurrency.value}'),
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              child: Text(
+                                '${currenciesSymbolic[global.currentCurrency.value][1]}',
+                                style: TextStyle(fontSize: 32),
+                              ),
+                            ),
+                            trailing: Icon(Icons.edit,
+                                color: Color(global.currentColor)),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CurrencyChooser()));
+                            },
+                          );
                         },
                       ),
                     )
@@ -307,7 +251,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                       Text(
                         'Color Tag',
                         style: TextStyle(
-                            color: Color(_currentColor),
+                            color: Color(global.currentColor),
                             fontWeight: FontWeight.w700),
                       ),
                       SizedBox(height: 10),
@@ -319,13 +263,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFFCB576C;
+                                  global.currentColor = 0xFFCB576C;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFFCB576C),
                                   radius: 18,
-                                  child: _currentColor == 0xFFCB576C
+                                  child: global.currentColor == 0xFFCB576C
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -335,13 +279,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFF4781BE;
+                                  global.currentColor = 0xFF4781BE;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFF4781BE),
                                   radius: 18,
-                                  child: _currentColor == 0xFF4781BE
+                                  child: global.currentColor == 0xFF4781BE
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -351,13 +295,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFFEDA924;
+                                  global.currentColor = 0xFFEDA924;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFFEDA924),
                                   radius: 18,
-                                  child: _currentColor == 0xFFEDA924
+                                  child: global.currentColor == 0xFFEDA924
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -367,13 +311,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFF8BBC25;
+                                  global.currentColor = 0xFF8BBC25;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFF8BBC25),
                                   radius: 18,
-                                  child: _currentColor == 0xFF8BBC25
+                                  child: global.currentColor == 0xFF8BBC25
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -383,13 +327,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFFFFA057;
+                                  global.currentColor = 0xFFFFA057;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFFFFA057),
                                   radius: 18,
-                                  child: _currentColor == 0xFFFFA057
+                                  child: global.currentColor == 0xFFFFA057
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -399,13 +343,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFF57CBB6;
+                                  global.currentColor = 0xFF57CBB6;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFF57CBB6),
                                   radius: 18,
-                                  child: _currentColor == 0xFF57CBB6
+                                  child: global.currentColor == 0xFF57CBB6
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -415,13 +359,13 @@ class _AddAccountPageState extends State<AddAccountPage> {
                               borderRadius: BorderRadius.circular(100),
                               onTap: () {
                                 setState(() {
-                                  _currentColor = 0xFF595DA6;
+                                  global.currentColor = 0xFF595DA6;
                                 });
                               },
                               child: CircleAvatar(
                                   backgroundColor: Color(0xFF595DA6),
                                   radius: 18,
-                                  child: _currentColor == 0xFF595DA6
+                                  child: global.currentColor == 0xFF595DA6
                                       ? Icon(Icons.check,
                                           size: 28, color: Colors.white)
                                       : Container())),
@@ -438,31 +382,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
     );
   }
 
-  Map searchMap(String searchQuery) {
-    Map _searchedMap = {};
-
-    for (var i = 0; i < currenciesSymbolic.length; i++) {
-      if (currenciesSymbolic.values.toList()[i][0].contains(searchQuery) |
-          currenciesSymbolic.values
-              .toList()[i][0]
-              .toString()
-              .toLowerCase()
-              .contains(searchQuery) |
-          currenciesSymbolic.values
-              .toList()[i][0]
-              .toString()
-              .toUpperCase()
-              .contains(searchQuery)) {
-        _searchedMap.putIfAbsent(currenciesSymbolic.keys.toList()[i],
-            () => currenciesSymbolic.values.toList()[i]);
-      }
-    }
-
-    return _searchedMap;
-  }
-
   Future addAccount(
-      String name, int currency, int color, double openAmount) async {
+      String name, String currency, int color, double openAmount) async {
     final account = Account()
       ..name = name
       ..currency = currency
@@ -485,7 +406,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
         enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.blueGrey, width: 1.5)),
         focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 2, color: Color(_currentColor))),
+            borderSide:
+                BorderSide(width: 2, color: Color(global.currentColor))),
         errorBorder: OutlineInputBorder(
             borderSide: BorderSide(width: 1.5, color: Colors.red)),
         focusedErrorBorder: OutlineInputBorder(

@@ -8,7 +8,7 @@ class Account extends HiveObject {
   late String name;
 
   @HiveField(2)
-  late int currency;
+  late String currency;
 
   @HiveField(3)
   late int color;

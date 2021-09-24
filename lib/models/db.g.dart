@@ -18,7 +18,7 @@ class AccountAdapter extends TypeAdapter<Account> {
     };
     return Account()
       ..name = fields[1] as String
-      ..currency = fields[2] as int
+      ..currency = fields[2] as String
       ..color = fields[3] as int
       ..openAmount = fields[4] as double
       ..income = fields[5] as double

@@ -47,7 +47,7 @@ class _AccountsState extends State<Accounts> {
 
           // No Accounts
           if (accounts.isEmpty) {
-            return noAccounts();
+            return NoAccount();
           } else {
             return ListView.builder(
               physics: BouncingScrollPhysics(),
@@ -196,8 +196,8 @@ class _AccountsState extends State<Accounts> {
   }
 }
 
-class noAccounts extends StatelessWidget {
-  const noAccounts({
+class NoAccount extends StatelessWidget {
+  const NoAccount({
     Key? key,
   }) : super(key: key);
 
