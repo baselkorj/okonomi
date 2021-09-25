@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/models/lists.dart';
+import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/account_manager/account_global.dart' as global;
 import 'package:okonomi/screens/account_manager/currency_chooser.dart';
 import 'package:okonomi/screens/home.dart';
@@ -19,371 +20,341 @@ final _formKey = GlobalKey<FormState>();
 class _AddAccountPageState extends State<AddAccountPage> {
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Scaffold(
-        // App Bar
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          title: Text(
-            'Add Account',
+    return FocusScope(
+      child: Form(
+        key: _formKey,
+        child: Scaffold(
+          // App Bar
+          appBar: AppBar(
+            brightness: Brightness.dark,
+            title: Text(
+              'Add Account',
+            ),
+            backgroundColor: Color(global.currentColor),
           ),
-          backgroundColor: Color(global.currentColor),
-        ),
 
-        // Save Button
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(global.currentColor),
-          child: Icon(Icons.save, color: Colors.white),
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              addAccount(global.currentName, global.currentCurrency.value,
-                  global.currentColor, double.parse(global.currentOpenAmount));
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => Home()));
-              global.currentName = '';
-              global.currentOpenAmount = '0.0';
-              global.currentColor = 0xFFCB576C;
-              global.currentCurrency.value = 'AFN';
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text("Incomplete Form"),
-              ));
-            }
-          },
-        ),
+          // Save Button
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Color(global.currentColor),
+            child: Icon(Icons.save, color: Colors.white),
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                addAccount(
+                    global.currentName,
+                    global.currentCurrency.value,
+                    global.currentColor,
+                    double.parse(global.currentOpenAmount),
+                    double.parse(global.currentGoalLimit));
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => Home()));
+                global.currentName = '';
+                global.currentOpenAmount = '0.0';
+                global.currentGoalLimit = '0.0';
+                global.currentColor = 0xFFCB576C;
+                global.currentCurrency.value = 'AFN';
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Incomplete Form"),
+                ));
+              }
+            },
+          ),
 
-        // Body
-        body: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Account Name
-              Card(
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Account Name',
-                        style: TextStyle(
-                            color: Color(global.currentColor),
-                            fontWeight: FontWeight.w700),
-                      ),
-                      SizedBox(height: 10),
-                      TextFormField(
-                          decoration: buildInputDecoration(),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return '';
-                            }
-                            return null;
-                          },
-                          onChanged: (val) =>
-                              setState(() => global.currentName = val)),
-                    ],
+          // Body
+          body: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Account Name
+                Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Account Name',
+                          style: TextStyle(
+                              color: Color(global.currentColor),
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 10),
+                        Focus(child: Builder(builder: (BuildContext context) {
+                          final FocusNode focusNode = Focus.of(context);
+                          final bool hasFocus = focusNode.hasFocus;
+                          return TextFormField(
+                              style: textStyle(hasFocus, global.currentColor),
+                              decoration: buildInputDecoration(
+                                  hasFocus, global.currentColor),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return '';
+                                }
+                                return null;
+                              },
+                              onChanged: (val) => global.currentName = val);
+                        }))
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 5),
+                SizedBox(height: 5),
 
-              // Opening and Goal Balance
-              Row(
-                children: [
-                  Expanded(
-                    child: Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Opening Balance',
-                              style: TextStyle(
-                                  color: Color(global.currentColor),
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            SizedBox(height: 10),
-                            TextFormField(
-                                decoration: buildInputDecoration()
-                                    .copyWith(hintText: '0.0'),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r"[0-9.]")),
-                                  TextInputFormatter.withFunction(
-                                      (oldValue, newValue) {
-                                    try {
-                                      final text = newValue.text;
-                                      if (text.isNotEmpty) double.parse(text);
-                                      return newValue;
-                                    } catch (e) {}
-                                    return oldValue;
-                                  }),
-                                ],
-                                keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true,
-                                  signed: false,
-                                ),
-                                maxLength: 16,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return '';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (val) => setState(
-                                    () => global.currentOpenAmount = val)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 5),
-                  Expanded(
-                    child: Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Goal / Limit',
-                              style: TextStyle(
-                                  color: Color(global.currentColor),
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            SizedBox(height: 10),
-                            TextFormField(
-                                decoration: buildInputDecoration()
-                                    .copyWith(hintText: '0.0'),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r"[0-9.]")),
-                                  TextInputFormatter.withFunction(
-                                      (oldValue, newValue) {
-                                    try {
-                                      final text = newValue.text;
-                                      if (text.isNotEmpty) double.parse(text);
-                                      return newValue;
-                                    } catch (e) {}
-                                    return oldValue;
-                                  }),
-                                ],
-                                keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true,
-                                  signed: false,
-                                ),
-                                maxLength: 16,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return '';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (val) => setState(
-                                    () => global.currentOpenAmount = val)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-
-              // Currency Chooser
-              Card(
-                  child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Opening and Goal Balance
+                Row(
                   children: [
-                    Text(
-                      'Choose Currency',
-                      style: TextStyle(
-                          color: Color(global.currentColor),
-                          fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(height: 10),
-                    Card(
-                      child: ValueListenableBuilder(
-                        valueListenable: global.currentCurrency,
-                        builder: (context, value, _) {
-                          return ListTile(
-                            title: Text(
-                                '${currenciesSymbolic[global.currentCurrency.value][0]}'),
-                            subtitle: Text('${global.currentCurrency.value}'),
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              child: Text(
-                                '${currenciesSymbolic[global.currentCurrency.value][1]}',
-                                style: TextStyle(fontSize: 32),
+                    Expanded(
+                      child: Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Opening Balance',
+                                style: TextStyle(
+                                    color: Color(global.currentColor),
+                                    fontWeight: FontWeight.w700),
                               ),
-                            ),
-                            trailing: Icon(Icons.edit,
-                                color: Color(global.currentColor)),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => CurrencyChooser()));
-                            },
-                          );
-                        },
+                              SizedBox(height: 10),
+                              Focus(
+                                child: Builder(
+                                  builder: (BuildContext context) {
+                                    final FocusNode focusNode =
+                                        Focus.of(context);
+                                    final bool hasFocus = focusNode.hasFocus;
+                                    return TextFormField(
+                                        style: textStyle(
+                                            hasFocus, global.currentColor),
+                                        decoration: buildInputDecoration(
+                                                hasFocus, global.currentColor)
+                                            .copyWith(
+                                          hintText: '0.0',
+                                        ),
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r"[0-9.]")),
+                                          TextInputFormatter.withFunction(
+                                              (oldValue, newValue) {
+                                            try {
+                                              final text = newValue.text;
+                                              if (text.isNotEmpty)
+                                                double.parse(text);
+                                              return newValue;
+                                            } catch (e) {}
+                                            return oldValue;
+                                          }),
+                                        ],
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(
+                                          decimal: true,
+                                          signed: false,
+                                        ),
+                                        maxLength: 16,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return '';
+                                          }
+                                          return null;
+                                        },
+                                        onChanged: (val) =>
+                                            global.currentOpenAmount = val);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    )
+                    ),
+                    SizedBox(width: 5),
+                    Expanded(
+                      child: Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Goal / Limit',
+                                style: TextStyle(
+                                    color: Color(global.currentColor),
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              SizedBox(height: 10),
+                              Focus(
+                                child: Builder(
+                                  builder: (BuildContext context) {
+                                    final FocusNode focusNode =
+                                        Focus.of(context);
+                                    final bool hasFocus = focusNode.hasFocus;
+                                    return TextFormField(
+                                        style: textStyle(
+                                            hasFocus, global.currentColor),
+                                        decoration: buildInputDecoration(
+                                                hasFocus, global.currentColor)
+                                            .copyWith(
+                                          hintText: '0.0',
+                                        ),
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.allow(
+                                              RegExp(r"[0-9.]")),
+                                          TextInputFormatter.withFunction(
+                                              (oldValue, newValue) {
+                                            try {
+                                              final text = newValue.text;
+                                              if (text.isNotEmpty)
+                                                double.parse(text);
+                                              return newValue;
+                                            } catch (e) {}
+                                            return oldValue;
+                                          }),
+                                        ],
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(
+                                          decimal: true,
+                                          signed: false,
+                                        ),
+                                        maxLength: 16,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return '';
+                                          }
+                                          return null;
+                                        },
+                                        onChanged: (val) =>
+                                            global.currentGoalLimit = val);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              )),
+                SizedBox(height: 10),
 
-              SizedBox(height: 10),
-              // Color Selection
-              Card(
-                child: Padding(
+                // Currency Chooser
+                Card(
+                    child: Padding(
                   padding: EdgeInsets.all(10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Color Tag',
+                        'Choose Currency',
                         style: TextStyle(
                             color: Color(global.currentColor),
                             fontWeight: FontWeight.w700),
                       ),
                       SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          // Red
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
+                      Card(
+                        child: ValueListenableBuilder(
+                          valueListenable: global.currentCurrency,
+                          builder: (context, value, _) {
+                            return ListTile(
+                              title: Text(
+                                  '${currenciesSymbolic[global.currentCurrency.value][0]}'),
+                              subtitle: Text('${global.currentCurrency.value}'),
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                child: Text(
+                                  '${currenciesSymbolic[global.currentCurrency.value][1]}',
+                                  style: TextStyle(fontSize: 32),
+                                ),
+                              ),
+                              trailing: Icon(Icons.edit,
+                                  color: Color(global.currentColor)),
                               onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFFCB576C;
-                                });
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CurrencyChooser()));
                               },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFFCB576C),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFFCB576C
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-
-                          // Blue
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFF4781BE;
-                                });
-                              },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFF4781BE),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFF4781BE
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-
-                          // Yellow
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFFEDA924;
-                                });
-                              },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFFEDA924),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFFEDA924
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-
-                          // Green
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFF8BBC25;
-                                });
-                              },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFF8BBC25),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFF8BBC25
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-
-                          // Orange
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFFFFA057;
-                                });
-                              },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFFFFA057),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFFFFA057
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-
-                          // Cyan
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFF57CBB6;
-                                });
-                              },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFF57CBB6),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFF57CBB6
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-
-                          // Indigo
-                          InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: () {
-                                setState(() {
-                                  global.currentColor = 0xFF595DA6;
-                                });
-                              },
-                              child: CircleAvatar(
-                                  backgroundColor: Color(0xFF595DA6),
-                                  radius: 18,
-                                  child: global.currentColor == 0xFF595DA6
-                                      ? Icon(Icons.check,
-                                          size: 28, color: Colors.white)
-                                      : Container())),
-                        ],
+                            );
+                          },
+                        ),
                       )
                     ],
                   ),
-                ),
-              )
-            ],
+                )),
+
+                SizedBox(height: 10),
+                // Color Selection
+                Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Color Tag',
+                          style: TextStyle(
+                              color: Color(global.currentColor),
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // Red
+                            colorPallete(0xFFCB576C),
+
+                            // Blue
+                            colorPallete(0xFF4781BE),
+
+                            // Yellow
+                            colorPallete(0xFFEDA924),
+
+                            // Green
+                            colorPallete(0xFF8BBC25),
+
+                            // Orange
+                            colorPallete(0xFFFFA057),
+
+                            // Cyan
+                            colorPallete(0xFF57CBB6),
+
+                            // Indigo
+                            colorPallete(0xFF595DA6),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Future addAccount(
-      String name, String currency, int color, double openAmount) async {
+  InkWell colorPallete(int color) {
+    return InkWell(
+        borderRadius: BorderRadius.circular(100),
+        onTap: () {
+          setState(() {
+            global.currentColor = color;
+          });
+        },
+        child: CircleAvatar(
+            backgroundColor: Color(color),
+            radius: 18,
+            child: global.currentColor == color
+                ? Icon(Icons.check, size: 28, color: Colors.white)
+                : Container()));
+  }
+
+  Future addAccount(String name, String currency, int color, double openAmount,
+      double goalLimit) async {
     final account = Account()
       ..name = name
       ..currency = currency
@@ -391,26 +362,9 @@ class _AddAccountPageState extends State<AddAccountPage> {
       ..openAmount = openAmount
       ..income = 0.0
       ..expenses = 0.0
-      ..goalLimit = openAmount;
+      ..goalLimit = goalLimit;
 
     final box = Boxes.getAccounts();
     box.add(account);
-  }
-
-  InputDecoration buildInputDecoration() {
-    return InputDecoration(
-        errorStyle: TextStyle(height: 0),
-        counterText: '',
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blueGrey, width: 1.5)),
-        focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(width: 2, color: Color(global.currentColor))),
-        errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 1.5, color: Colors.red)),
-        focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 1.5, color: Colors.red)));
   }
 }
