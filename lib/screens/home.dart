@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:okonomi/boxes.dart';
-import 'package:okonomi/models/colors.dart';
+import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/account_manager/accounts.dart';
 import 'package:okonomi/screens/account_manager/add_account.dart';
 import 'package:okonomi/screens/transaction.dart';
+import 'package:okonomi/screens/account_manager/account_global.dart' as global;
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -32,7 +33,11 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double h = MediaQuery.of(context).size.height;
+    global.currentName = '';
+    global.currentOpenAmount = '0.0';
+    global.currentColor = 0xFFCB576C;
+    global.currentCurrency.value = 'AFN';
+
     return ValueListenableBuilder<Box<Account>>(
         valueListenable: Boxes.getAccounts().listenable(),
         builder: (context, box, _) {
@@ -70,11 +75,10 @@ class _HomeState extends State<Home> {
                       '${_currentAccount!.name}',
                       style: TextStyle(color: Color(_currentAccount.color)),
                     ),
-                    SizedBox(height: h * 0.002),
+                    SizedBox(height: 1),
                     Text(
                       "Aug 2021",
-                      style:
-                          TextStyle(color: Colors.black54, fontSize: h * 0.014),
+                      style: TextStyle(color: Colors.black54, fontSize: 14),
                     )
                   ],
                 ),
@@ -118,7 +122,7 @@ class _HomeState extends State<Home> {
                                       Navigator.pop(context);
                                     },
                                     child: Container(
-                                      padding: EdgeInsets.all(h * 0.005),
+                                      padding: EdgeInsets.all(5),
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(10)),
@@ -196,7 +200,7 @@ class _HomeState extends State<Home> {
                   onPressed: () {},
                   label: Text('Export'),
                   icon: Icon(Icons.print),
-                  backgroundColor: color1,
+                  backgroundColor: Color(color1),
                   elevation: 4,
                 ),
                 SizedBox(height: 10),
@@ -208,11 +212,12 @@ class _HomeState extends State<Home> {
                         MaterialPageRoute(
                             builder: (context) => AddTransaction(
                                   currentKey: _currentAccount.key,
+                                  currentCurrency: _currentAccount.currency,
                                 )));
                   },
                   label: Text('Transaction'),
                   icon: Icon(Icons.add),
-                  backgroundColor: color4,
+                  backgroundColor: Color(color4),
                   elevation: 4,
                 ),
               ],
@@ -245,7 +250,7 @@ class _HomeState extends State<Home> {
                                 ],
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10)),
-                                color: color2),
+                                color: Color(color2)),
                             child: Column(
                               children: <Widget>[
                                 Text(
@@ -285,7 +290,7 @@ class _HomeState extends State<Home> {
                                 ],
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10)),
-                                color: color3),
+                                color: Color(color3)),
                             child: Column(
                               children: <Widget>[
                                 Text(
@@ -325,7 +330,7 @@ class _HomeState extends State<Home> {
                                 ],
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10)),
-                                color: color1),
+                                color: Color(color1)),
                             child: Column(
                               children: <Widget>[
                                 Text(
