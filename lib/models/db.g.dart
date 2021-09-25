@@ -69,7 +69,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
     };
     return Transaction()
       ..payee = fields[0] as String
-      ..account = fields[1] as String
+      ..account = fields[1] as int
       ..category = fields[2] as String
       ..note = fields[3] as String
       ..type = fields[4] as int

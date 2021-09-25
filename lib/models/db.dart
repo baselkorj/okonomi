@@ -33,7 +33,7 @@ class Transaction extends HiveObject {
   late String payee;
 
   @HiveField(1)
-  late String account;
+  late int account;
 
   @HiveField(2)
   late String category;
