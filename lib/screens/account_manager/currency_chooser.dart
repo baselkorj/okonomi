@@ -53,9 +53,9 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.pop(context);
                       global.currentCurrency.value =
                           _currentList.keys.toList()[index];
+                      Navigator.pop(context);
                     },
                   ),
                   Divider(),
