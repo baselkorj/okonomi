@@ -54,8 +54,7 @@ class _AddTransactionState extends State<AddTransaction> {
                 if (_formKey.currentState!.validate()) {
                   addTransaction(_payee, widget.currentKey, _category, _note,
                       _type, double.parse(_amount), _dateTime);
-                  Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Incomplete Form"),
@@ -498,7 +497,7 @@ class _AddTransactionState extends State<AddTransaction> {
                             style: textStyle(hasFocus, _color),
                             decoration: buildInputDecoration(hasFocus, _color),
                             validator: (val) {},
-                            onChanged: (val) => setState(() => _payee = val));
+                            onChanged: (val) => setState(() => _note = val));
                       }))
                     ],
                   ),
