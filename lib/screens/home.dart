@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:okonomi/boxes.dart';
+import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
-import 'package:okonomi/screens/account_manager/accounts.dart';
 import 'package:okonomi/screens/account_manager/add_account.dart';
 import 'package:okonomi/screens/transaction.dart';
 import 'package:okonomi/screens/account_manager/account_global.dart' as global;
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -27,16 +28,33 @@ class _HomeState extends State<Home> {
   var _selected = 0;
   bool _updated = false;
 
-  double _income = 0;
-  double _expense = 0;
-  double _total = 0;
+  Map _currentDayMap = {};
+
+  int _currentMonth = 10;
 
   @override
   Widget build(BuildContext context) {
+    // Safety Net: Reset Global Values
     global.currentName = '';
     global.currentOpenAmount = '0.0';
     global.currentColor = 0xFFCB576C;
     global.currentCurrency.value = 'AFN';
+
+    double _income = 0;
+    double _expense = 0;
+    double _total = 0;
+
+    int isExpense(double amount) {
+      _total = _total - amount;
+      _expense = _expense + amount;
+      return 0;
+    }
+
+    int isIncome(double amount) {
+      _total = _total + amount;
+      _income = _income + amount;
+      return 0;
+    }
 
     return ValueListenableBuilder<Box<Account>>(
         valueListenable: Boxes.getAccounts().listenable(),
@@ -57,7 +75,6 @@ class _HomeState extends State<Home> {
           // Update Income, Expense, and Total
           _income = accounts[_selected].income;
           _expense = accounts[_selected].expenses;
-          _total = accounts[_selected].openAmount + _income - _expense;
 
           final mybox = Boxes.getAccounts();
           final _currentAccount = mybox.get(_selected);
@@ -149,6 +166,24 @@ class _HomeState extends State<Home> {
                                             leading: CircleAvatar(
                                                 backgroundColor:
                                                     Color(account.color)),
+                                            trailing: InkWell(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Padding(
+                                                padding: EdgeInsets.all(5),
+                                                child: _selected == index
+                                                    ? Icon(
+                                                        Icons.edit,
+                                                        color: Color(
+                                                            account.color),
+                                                      )
+                                                    : Container(
+                                                        height: 0,
+                                                        width: 0,
+                                                      ),
+                                              ),
+                                              onTap: () {},
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -180,7 +215,8 @@ class _HomeState extends State<Home> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => Accounts()));
+                                            builder: (context) =>
+                                                AddAccountPage()));
                                   },
                                   leading: Icon(Icons.settings, size: 32),
                                   title: Text('Settings')),
@@ -224,159 +260,244 @@ class _HomeState extends State<Home> {
             ),
 
             // Body
-            body: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  children: [
-                    SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Income
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 4,
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                  ),
-                                ],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                color: Color(color2)),
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  'Income',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                SizedBox(height: 15),
-                                Text(
-                                  '$_income',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                  ),
-                                ),
-                                SizedBox(height: 10)
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10),
+            body: ValueListenableBuilder<Box<Transaction>>(
+                valueListenable: Boxes.getTransactions().listenable(),
+                builder: (context, box, _) {
+                  final transactions = box.values
+                      .where((transaction) =>
+                          transaction.account == _currentAccount.key)
+                      .where((transaction) =>
+                          transaction.dateTime.month == _currentMonth)
+                      .toList();
 
-                        // Expense
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 4,
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                  ),
-                                ],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                color: Color(color3)),
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  'Expense',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                SizedBox(height: 15),
-                                Text(
-                                  '$_expense',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                  ),
-                                ),
-                                SizedBox(height: 10)
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10),
+                  if (transactions.isNotEmpty) {
+                    // Calculate Transactions
+                    for (int i = 0; i < transactions.length; i++) {
+                      transactions[i].type == 1
+                          ? isExpense(transactions[i].amount)
+                          : isIncome(transactions[i].amount);
+                    }
 
-                        // Total
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 4,
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                  ),
+                    // Create Day Map
+                    _currentDayMap.clear();
+
+                    for (int m = 31; m >= 0; m--) {
+                      final dailyTransactions = transactions
+                          .where((transaction) => transaction.dateTime.day == m)
+                          .toList();
+
+                      if (dailyTransactions.isNotEmpty) {
+                        _currentDayMap.putIfAbsent(m, () => dailyTransactions);
+                      }
+                    }
+
+                    return SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(children: [
+                              SizedBox(height: 15),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  // Income
+                                  countTile('Income', _income, color2),
+                                  SizedBox(width: 10),
+
+                                  // Expense
+                                  countTile('Expense', _expense, color1),
+                                  SizedBox(width: 10),
+
+                                  // Total
+                                  countTile('Total', _total, color3),
                                 ],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                color: Color(color1)),
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  'Total',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                SizedBox(height: 15),
-                                Text(
-                                  '$_total',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                  ),
-                                ),
-                                SizedBox(height: 10)
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 15),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 4,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      height: 1000,
-                    )
-                  ],
-                ),
-              ),
-            ),
+                              ),
+                              SizedBox(height: 15),
+
+                              // Transactions List
+                              ListView.builder(
+                                physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: _currentDayMap.keys.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  var _thisDay =
+                                      _currentDayMap.keys.toList()[index];
+
+                                  return Column(
+                                    children: [
+                                      Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        elevation: 3,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                                padding: EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                            '${months[_currentMonth - 1]} $_thisDay',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .black54)),
+                                                        Text(
+                                                            '${dateIndent(_thisDay)}',
+                                                            style: TextStyle(
+                                                                fontSize: 8,
+                                                                color: Colors
+                                                                    .black54)),
+                                                        Text(
+                                                            ' | ${DateFormat('E').format(_currentDayMap[_thisDay][0].dateTime)}',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .black54)),
+                                                      ],
+                                                    ),
+                                                    Text('Total: 15325',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors
+                                                                .black54)),
+                                                  ],
+                                                )),
+                                            Divider(
+                                              color: Colors.black26,
+                                              height: 5,
+                                            ),
+                                            ListView.builder(
+                                                itemCount:
+                                                    _currentDayMap[_thisDay]
+                                                        .length,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  var _currentAccess =
+                                                      _currentDayMap[_thisDay]
+                                                          .toList()[index];
+
+                                                  return ListTile(
+                                                    title: Text(
+                                                        '${_currentAccess.category}'),
+                                                    subtitle: Text(
+                                                        '${_currentAccess.note}'),
+                                                    leading: _currentAccess
+                                                                .type ==
+                                                            1
+                                                        ? CircleAvatar(
+                                                            backgroundColor:
+                                                                Color(color1),
+                                                            child: Icon(
+                                                                expenseCategories[
+                                                                    _currentAccess
+                                                                        .category],
+                                                                color: Colors
+                                                                    .white))
+                                                        : CircleAvatar(
+                                                            backgroundColor:
+                                                                Color(color2),
+                                                            child: Icon(
+                                                                incomeCategories[
+                                                                    _currentAccess
+                                                                        .category],
+                                                                color: Colors
+                                                                    .white)),
+                                                    trailing: _currentAccess
+                                                                .type ==
+                                                            1
+                                                        ? Text(
+                                                            '-${_currentAccess.amount}',
+                                                            style: TextStyle(
+                                                                color: Color(
+                                                                    color1)))
+                                                        : Text(
+                                                            '+${_currentAccess.amount}',
+                                                            style: TextStyle(
+                                                                color: Color(
+                                                                    color2))),
+                                                  );
+                                                }),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 10)
+                                    ],
+                                  );
+                                },
+                              ),
+                              SizedBox(height: 125),
+                            ])));
+                  } else {
+                    return NoAccounts();
+                  }
+                }),
           );
         });
+  }
+
+  Expanded countTile(String title, double amount, int color) {
+    return Expanded(
+        child: Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(0, 2), // changes position of shadow
+                  ),
+                ],
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: Color(color)),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  title,
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700),
+                ),
+                SizedBox(height: 15),
+                Text(
+                  '$amount',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                  ),
+                ),
+                SizedBox(height: 10)
+              ],
+            )));
+  }
+
+  String dateIndent(int day) {
+    if (day == 1) {
+      return 'st';
+    } else if (day == 2) {
+      return 'nd';
+    } else if (day == 3) {
+      return 'rd';
+    } else {
+      return 'th';
+    }
   }
 }
 
@@ -389,7 +510,7 @@ class NoAccounts extends StatelessWidget {
         children: [
           Icon(
             Icons.search_off_rounded,
-            size: 10,
+            size: 64,
             color: Colors.black45,
           ),
           SizedBox(height: 15),
