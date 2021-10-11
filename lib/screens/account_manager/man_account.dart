@@ -8,29 +8,45 @@ import 'package:okonomi/screens/account_manager/account_global.dart' as global;
 import 'package:okonomi/screens/account_manager/currency_chooser.dart';
 import 'package:okonomi/screens/home.dart';
 
-class AddAccountPage extends StatefulWidget {
-  const AddAccountPage({Key? key}) : super(key: key);
+class ManAccount extends StatefulWidget {
+  final currentKey;
+  final currentState;
+  final isUrgent;
+
+  ManAccount({this.currentKey, this.currentState, this.isUrgent});
 
   @override
-  _AddAccountPageState createState() => _AddAccountPageState();
+  _ManAccountState createState() => _ManAccountState();
 }
 
-final _formKey = GlobalKey<FormState>();
+GlobalKey<FormState> _accountForm = GlobalKey<FormState>();
 
-class _AddAccountPageState extends State<AddAccountPage> {
+class _ManAccountState extends State<ManAccount> {
   @override
   Widget build(BuildContext context) {
     return FocusScope(
       child: Form(
-        key: _formKey,
+        key: _accountForm,
         child: Scaffold(
           // App Bar
           appBar: AppBar(
             brightness: Brightness.dark,
             title: Text(
-              'Add Account',
+              widget.currentState == 0 ? 'Add Account' : 'Edit Account',
             ),
             backgroundColor: Color(global.currentColor),
+            actions: [
+              widget.currentState == 0
+                  ? Container()
+                  : IconButton(
+                      onPressed: () {
+                        showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                deleteDialog(widget.currentKey));
+                      },
+                      icon: Icon(Icons.delete, color: Colors.white))
+            ],
           ),
 
           // Save Button
@@ -38,20 +54,23 @@ class _AddAccountPageState extends State<AddAccountPage> {
             backgroundColor: Color(global.currentColor),
             child: Icon(Icons.save, color: Colors.white),
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                addAccount(
-                    global.currentName,
-                    global.currentCurrency.value,
-                    global.currentColor,
-                    double.parse(global.currentOpenAmount),
-                    double.parse(global.currentGoalLimit));
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => Home()));
-                global.currentName = '';
-                global.currentOpenAmount = '0.0';
-                global.currentGoalLimit = '0.0';
-                global.currentColor = 0xFFCB576C;
-                global.currentCurrency.value = 'AFN';
+              if (_accountForm.currentState!.validate()) {
+                widget.currentState == 0
+                    ? addAccount(
+                        global.currentName,
+                        global.currentCurrency.value,
+                        global.currentColor,
+                        double.parse(global.currentOpenAmount),
+                        double.parse(global.currentGoalLimit))
+                    : editAccount(
+                        global.currentName,
+                        global.currentCurrency.value,
+                        global.currentColor,
+                        double.parse(global.currentOpenAmount),
+                        double.parse(global.currentGoalLimit));
+                if (widget.isUrgent != true) {
+                  Navigator.pop(context);
+                }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text("Incomplete Form"),
@@ -86,6 +105,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                           final FocusNode focusNode = Focus.of(context);
                           final bool hasFocus = focusNode.hasFocus;
                           return TextFormField(
+                              initialValue: global.currentName,
                               style: textStyle(hasFocus, global.currentColor),
                               decoration: buildInputDecoration(
                                   hasFocus, global.currentColor),
@@ -127,6 +147,9 @@ class _AddAccountPageState extends State<AddAccountPage> {
                                         Focus.of(context);
                                     final bool hasFocus = focusNode.hasFocus;
                                     return TextFormField(
+                                        initialValue: widget.currentState == 0
+                                            ? ''
+                                            : global.currentOpenAmount,
                                         style: textStyle(
                                             hasFocus, global.currentColor),
                                         decoration: buildInputDecoration(
@@ -192,6 +215,9 @@ class _AddAccountPageState extends State<AddAccountPage> {
                                         Focus.of(context);
                                     final bool hasFocus = focusNode.hasFocus;
                                     return TextFormField(
+                                        initialValue: widget.currentState == 0
+                                            ? ''
+                                            : global.currentGoalLimit,
                                         style: textStyle(
                                             hasFocus, global.currentColor),
                                         decoration: buildInputDecoration(
@@ -337,6 +363,36 @@ class _AddAccountPageState extends State<AddAccountPage> {
     );
   }
 
+  AlertDialog deleteDialog(int key) {
+    return AlertDialog(
+      title: Text(
+        'Caution!',
+        style: TextStyle(height: 1.5),
+      ),
+      content: Text(
+        "Are you sure you want to delete this account? You won't be able to recover any data under it.",
+        style: TextStyle(color: Colors.black45),
+      ),
+      actions: <Widget>[
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.black54),
+            )),
+        ElevatedButton(
+            child: Text('Delete', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(primary: Color(color1)),
+            onPressed: () async {
+              Navigator.pop(context);
+              await deleteAccount(key);
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Home()));
+            }),
+      ],
+    );
+  }
+
   InkWell colorPallete(int color) {
     return InkWell(
         borderRadius: BorderRadius.circular(100),
@@ -366,5 +422,25 @@ class _AddAccountPageState extends State<AddAccountPage> {
 
     final box = Boxes.getAccounts();
     box.add(account);
+  }
+
+  Future editAccount(String name, String currency, int color, double openAmount,
+      double goalLimit) async {
+    final account = Account()
+      ..name = name
+      ..currency = currency
+      ..color = color
+      ..openAmount = openAmount
+      ..income = 0.0
+      ..expenses = 0.0
+      ..goalLimit = goalLimit;
+
+    final box = Boxes.getAccounts();
+    box.putAt(widget.currentKey, account);
+  }
+
+  Future deleteAccount(int key) async {
+    final box = Boxes.getAccounts();
+    box.delete(key);
   }
 }
