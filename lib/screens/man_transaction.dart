@@ -6,19 +6,19 @@ import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/home.dart';
 
-class AddTransaction extends StatefulWidget {
+class ManTransaction extends StatefulWidget {
   final currentKey;
   final currentCurrency;
 
-  AddTransaction({this.currentKey, this.currentCurrency});
+  ManTransaction({this.currentKey, this.currentCurrency});
 
   @override
-  _AddTransactionState createState() => _AddTransactionState();
+  _ManTransactionState createState() => _ManTransactionState();
 }
 
-final _formKey = GlobalKey<FormState>();
+GlobalKey<FormState> _transactionForm = GlobalKey<FormState>();
 
-class _AddTransactionState extends State<AddTransaction> {
+class _ManTransactionState extends State<ManTransaction> {
   String _category = 'Other';
   int _type = 1;
   String _amount = '';
@@ -37,7 +37,7 @@ class _AddTransactionState extends State<AddTransaction> {
 
     return FocusScope(
       child: Form(
-        key: _formKey,
+        key: _transactionForm,
         child: Scaffold(
           appBar: AppBar(
             brightness: Brightness.dark,
@@ -51,10 +51,11 @@ class _AddTransactionState extends State<AddTransaction> {
               backgroundColor: Color(_color),
               child: Icon(Icons.save),
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  addTransaction(_payee, widget.currentKey, _category, _note,
+                if (_transactionForm.currentState!.validate()) {
+                  AddTransaction(_payee, widget.currentKey, _category, _note,
                       _type, double.parse(_amount), _dateTime);
-                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (context) => Home()));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Incomplete Form"),
@@ -82,77 +83,9 @@ class _AddTransactionState extends State<AddTransaction> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _type = 0;
-                                  _category = 'Other';
-                                });
-                              },
-                              child: Container(
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    color: _type == 0
-                                        ? Color(color2)
-                                        : Colors.grey,
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 15),
-                                    Icon(
-                                      Icons.move_to_inbox,
-                                      color: Colors.white,
-                                      size: 45,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Income',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          typeBox(0, color2, Icons.move_to_inbox, 'Income'),
                           SizedBox(width: 10),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _type = 1;
-                                  _category = 'Other';
-                                });
-                              },
-                              child: Container(
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    color: _type == 1
-                                        ? Color(color1)
-                                        : Colors.grey,
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 15),
-                                    Icon(
-                                      Icons.outbox,
-                                      color: Colors.white,
-                                      size: 45,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Expense',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
+                          typeBox(1, color1, Icons.outbox, 'Expense'),
                         ],
                       ),
                     ],
@@ -510,7 +443,48 @@ class _AddTransactionState extends State<AddTransaction> {
     );
   }
 
-  Future addTransaction(String payee, int account, String category, String note,
+  Expanded typeBox(int type, int color, IconData icon, String name) {
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _type = type;
+            _category = 'Other';
+          });
+        },
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+              color: type == 0
+                  ? _type == 0
+                      ? Color(color)
+                      : Colors.grey
+                  : _type == 1
+                      ? Color(color)
+                      : Colors.grey,
+              borderRadius: BorderRadius.circular(8)),
+          child: Row(
+            children: [
+              SizedBox(width: 15),
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 45,
+              ),
+              SizedBox(width: 10),
+              Text(
+                '$name',
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future AddTransaction(String payee, int account, String category, String note,
       int type, double amount, DateTime dateTime) async {
     final transaction = Transaction()
       ..payee = payee
