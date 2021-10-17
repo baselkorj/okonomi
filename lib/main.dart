@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:okonomi/models/db.dart';
-import 'package:okonomi/screens/account_manager/add_account.dart';
+import 'package:okonomi/models/shared.dart';
 import 'package:okonomi/screens/home.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -26,9 +26,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Okonomi Finance Manager',
-      home: Home(),
-    );
+        theme: ThemeData(
+          brightness: Brightness.light,
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.light,
+        ),
+        themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+        title: 'Okonomi Finance Manager',
+        home: Home());
   }
 }
