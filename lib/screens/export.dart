@@ -2,9 +2,12 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/lists.dart';
+import 'package:pdf/widgets.dart' as pdfWid;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
@@ -36,7 +39,7 @@ class _ExportPageState extends State<ExportPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         title: Text(
           'Export Account',
           style: TextStyle(color: Colors.white),
@@ -51,6 +54,8 @@ class _ExportPageState extends State<ExportPage> {
           onPressed: () async {
             exportAccount();
           }),
+
+      // Body
       body: ListView(
         shrinkWrap: true,
         physics: BouncingScrollPhysics(),
@@ -90,50 +95,10 @@ class _ExportPageState extends State<ExportPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Start Date
-              dateSelect(),
+              dateSelect('Start', _startDate),
 
               // End Date
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'End Date',
-                          style: TextStyle(
-                              color: Color(_color),
-                              fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(height: 10),
-                        InkWell(
-                          onTap: () async {},
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                                color: Color(_color),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '${_endDate.day} ${months[_endDate.month - 1]} ${_endDate.year}',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              dateSelect('End', _endDate)
             ],
           ),
           SizedBox(height: 10),
@@ -168,7 +133,7 @@ class _ExportPageState extends State<ExportPage> {
     );
   }
 
-  Expanded dateSelect() {
+  Expanded dateSelect(String pos, DateTime dateTime) {
     return Expanded(
       child: Card(
         child: Padding(
@@ -177,13 +142,35 @@ class _ExportPageState extends State<ExportPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Start Date',
+                '$pos Date',
                 style: TextStyle(
                     color: Color(_color), fontWeight: FontWeight.w700),
               ),
               SizedBox(height: 10),
               InkWell(
-                onTap: () async {},
+                onTap: () async {
+                  final DateTime? selectedDate =
+                        await showDatePicker(
+                      context: context,
+                      initialDate: dateTime,
+                      firstDate: DateTime(0),
+                      lastDate: DateTime.now(),
+                    );
+                    if (selectedDate != null &&
+                        selectedDate != dateTime) {
+                      
+                      if (pos == 'Start') {
+                        setState(() {
+                        _startDate = selectedDate;
+                      });
+                      } else {
+                        setState(() {
+                        _endDate = selectedDate;
+                      });
+                      }
+                      
+                      }
+                },
                 child: Container(
                   height: 50,
                   decoration: BoxDecoration(
@@ -193,7 +180,7 @@ class _ExportPageState extends State<ExportPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${_startDate.day} ${months[_startDate.month - 1]} ${_startDate.year}',
+                        '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year}',
                         style: TextStyle(
                             fontSize: 14,
                             color: Colors.white,
@@ -347,7 +334,7 @@ class _ExportPageState extends State<ExportPage> {
     } else if (_formatType == 1) {
       pdf = createPDF(transactions);
     } else if (_formatType == 2) {
-      pdf = createXLSX(transactions);
+      xlsx = createXLSX(transactions);
     }
 
     // File Name Generator
@@ -357,7 +344,6 @@ class _ExportPageState extends State<ExportPage> {
     if (_formatType == 0) {
       f = File('$selectedDirectory' + '${await file}' + '.csv');
 
-      print(csv);
       f.writeAsString(csv);
 
       if (_exportType == 1) {
@@ -365,7 +351,23 @@ class _ExportPageState extends State<ExportPage> {
             text: '${widget.currentAccount.name} Export');
       }
     } else if (_formatType == 1) {
-    } else if (_formatType == 2) {}
+      f = File('$selectedDirectory' + '${await file}' + '.pdf');
+
+      f.writeAsBytes(await pdf);
+
+      if (_exportType == 1) {
+        Share.shareFiles(['$selectedDirectory' + '${await file}' + '.pdf'],
+            text: '${widget.currentAccount.name} Export');
+      }
+    } else if (_formatType == 2) {
+      f = File('$selectedDirectory' + '${await file}' + '.xlsx');
+
+      f.writeAsBytes(await xlsx);
+
+      if (_exportType == 1) {
+        Share.shareFiles(['$selectedDirectory' + '${await file}' + '.xlsx'],
+            text: '${widget.currentAccount.name} Export');}
+    }
 
     // Return Success Message
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -400,10 +402,84 @@ class _ExportPageState extends State<ExportPage> {
 
   // Create CSV
   Future<String> createCSV(transactions) async {
-    List<List<dynamic>> rows = [
-      ['Date', 'Type', 'Amount', 'Category', 'Notes', 'Payee']
+    List<String> headers = [
+      'Date',
+      'Type',
+      'Amount',
+      'Category',
+      'Notes',
+      'Payee'
     ];
-    List row = [];
+
+    List<List<dynamic>> entries = createEntries(transactions);
+
+    entries.insert(0, headers);
+
+    String csv = const ListToCsvConverter().convert(entries);
+
+    return csv;
+  }
+
+  // Create PDF File
+  Future<List<int>> createPDF(transactions) async {
+    List<String> headers = [
+      'Date',
+      'Type',
+      'Amount',
+      'Category',
+      'Notes',
+      'Payee'
+    ];
+
+    List<List<dynamic>> entries = createEntries(transactions);
+
+    final pdf = pdfWid.Document();
+
+    pdf.addPage(pdfWid.Page(
+      build: (context) => pdfWid.Table.fromTextArray(
+        headers: headers,
+        data: entries,
+      ),
+    ));
+
+    final bytes = await pdf.save();
+
+    return bytes;
+  }
+
+  // Create XLSX File
+  Future<List<int>> createXLSX(transactions) async {
+    final workbook = xlsio.Workbook();
+    final sheet = workbook.worksheets[0];
+
+    // Set Headers
+    sheet.getRangeByName('A1').setText('Date');
+    sheet.getRangeByName('B1').setText('Type');
+    sheet.getRangeByName('C1').setText('Amount');
+    sheet.getRangeByName('D1').setText('Category');
+    sheet.getRangeByName('E1').setText('Notes');
+    sheet.getRangeByName('F1').setText('Payee');
+
+    // Generate List of Entries
+    List<List<dynamic>> entries = createEntries(transactions);
+
+    // Iterate Through Entries and Import to Sheet
+    for (var i = 0 ; i < entries.length ; i++) {
+      sheet.importList(entries[i], i + 2, 1, false);
+    }
+
+    final List<int> bytes = workbook.saveAsStream();
+    
+    workbook.dispose();
+
+    return bytes;
+  }
+
+  // Create List of Entries
+  List<List<dynamic>> createEntries(transactions) {
+    List<List<dynamic>> entries = [];
+    List entry = [];
+
     double total = 0;
 
     for (var i = 0; i < transactions.length; i++) {
@@ -415,33 +491,24 @@ class _ExportPageState extends State<ExportPage> {
       }
 
       // Create CSV File Rows
-      row = [];
-      row.add(transactions[i].dateTime);
+      entry = [];
+      entry.add('${transactions[i].dateTime.day}/${transactions[i].dateTime.month}/${transactions[i].dateTime.year}');
 
       if (transactions[i].type == 1) {
-        row.add('Expense');
-        row.add('-${transactions[i].amount}');
+        entry.add('Expense');
+        entry.add('-${transactions[i].amount}');
       } else {
-        row.add('Income');
-        row.add('+${transactions[i].amount}');
+        entry.add('Income');
+        entry.add('+${transactions[i].amount}');
       }
-      row.add(transactions[i].category);
-      row.add(transactions[i].note);
-      row.add(transactions[i].payee);
-      rows.add(row);
+      entry.add(transactions[i].category);
+      entry.add(transactions[i].note);
+      entry.add(transactions[i].payee);
+      entries.add(entry);
     }
 
-    rows.add([]);
-    rows.add(['Total:', '${widget.currentAccount.currency} $total']);
+    entries.add(['', '', '$total']);
 
-    String csv = const ListToCsvConverter().convert(rows);
-
-    return csv;
+    return entries;
   }
-
-  // Create PDF File
-  Future createPDF(transactions) async {}
-
-  // Create XLSX File
-  Future createXLSX(transactions) async {}
 }
