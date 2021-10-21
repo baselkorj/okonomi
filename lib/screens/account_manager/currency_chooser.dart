@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/screens/account_manager/account_global.dart' as global;
 
@@ -14,9 +15,11 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
         appBar: AppBar(
-          brightness: Brightness.dark,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
 
           // Search Box
           title: Container(
@@ -35,33 +38,49 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
         ),
 
         // Currency List
-        body: ListView.builder(
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: _currentList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Column(
-                children: [
-                  ListTile(
-                    title: Text('${_currentList.values.toList()[index][0]}'),
-                    subtitle: Text('${_currentList.keys.toList()[index]}'),
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      child: Text(
-                        '${_currentList.values.toList()[index][1]}',
-                        style: TextStyle(fontSize: 32),
-                      ),
-                    ),
-                    onTap: () {
-                      global.currentCurrency.value =
-                          _currentList.keys.toList()[index];
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Divider(),
-                ],
-              );
-            }));
+        body: Align(
+          alignment: FractionalOffset.topCenter,
+          child: Container(
+            width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: _currentList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Text(
+                                  '${_currentList.values.toList()[index][0]}'),
+                              subtitle:
+                                  Text('${_currentList.keys.toList()[index]}'),
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                child: Text(
+                                  '${_currentList.values.toList()[index][1]}',
+                                  style: TextStyle(fontSize: 32),
+                                ),
+                              ),
+                              onTap: () {
+                                global.currentCurrency.value =
+                                    _currentList.keys.toList()[index];
+                                Navigator.pop(context);
+                              },
+                            ),
+                            Divider(),
+                          ],
+                        );
+                      }),
+                ),
+              ),
+            ),
+          ),
+        ));
   }
 
   // Input Decoration
@@ -98,6 +117,16 @@ Map searchMap(String searchQuery) {
         .toList()[i][0]
         .toString()
         .toUpperCase()
+        .contains(searchQuery)) {
+      _searchedMap.putIfAbsent(currenciesSymbolic.keys.toList()[i],
+          () => currenciesSymbolic.values.toList()[i]);
+    } else if (currenciesSymbolic.keys.toList()[i].contains(searchQuery)) {
+      _searchedMap.putIfAbsent(currenciesSymbolic.keys.toList()[i],
+          () => currenciesSymbolic.values.toList()[i]);
+    } else if (currenciesSymbolic.keys
+        .toList()[i]
+        .toString()
+        .toLowerCase()
         .contains(searchQuery)) {
       _searchedMap.putIfAbsent(currenciesSymbolic.keys.toList()[i],
           () => currenciesSymbolic.values.toList()[i]);
