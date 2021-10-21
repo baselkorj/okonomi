@@ -37,100 +37,112 @@ class _ExportPageState extends State<ExportPage> {
     } else if (_formatType == 2) {
       _color = color4;
     }
+
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        title: Text(
-          'Export Account',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Color(_color),
-      ),
-
-      // Export Button
-      floatingActionButton: FloatingActionButton(
+        appBar: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          title: Text(
+            'Export Account',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Color(_color),
-          child: Icon(Icons.print),
-          onPressed: () async {
-            exportAccount();
-          }),
+        ),
 
-      // Body
-      body: ListView(
-        shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        children: [
-          // Export Format
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        // Export Button
+        floatingActionButton: FloatingActionButton(
+            backgroundColor: Color(_color),
+            child: Icon(Icons.print),
+            onPressed: () async {
+              exportAccount();
+            }),
+
+        // Body
+        body: Align(
+            alignment: FractionalOffset.topCenter,
+            child: Container(
+              width:
+                  screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
+              child: ListView(
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 children: [
-                  Text(
-                    'Format',
-                    style: TextStyle(
-                        color: Color(_color), fontWeight: FontWeight.w700),
+                  // Export Format
+                  Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Format',
+                            style: TextStyle(
+                                color: Color(_color),
+                                fontWeight: FontWeight.w700),
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              typeBox(0, color2, Icons.table_chart, 'CSV'),
+                              SizedBox(width: 10),
+                              typeBox(1, color1, Icons.article, 'PDF'),
+                              SizedBox(width: 10),
+                              typeBox(
+                                  2, color4, Icons.grid_view_rounded, 'XLSX'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   SizedBox(height: 10),
+
+                  // Export Range
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      typeBox(0, color2, Icons.table_chart, 'CSV'),
-                      SizedBox(width: 10),
-                      typeBox(1, color1, Icons.article, 'PDF'),
-                      SizedBox(width: 10),
-                      typeBox(2, color4, Icons.grid_view_rounded, 'XLSX'),
+                      // Start Date
+                      dateSelect('Start', _startDate),
+
+                      // End Date
+                      dateSelect('End', _endDate)
                     ],
+                  ),
+                  SizedBox(height: 10),
+
+                  // Export Type
+                  Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Export Type',
+                            style: TextStyle(
+                                color: Color(_color),
+                                fontWeight: FontWeight.w700),
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              exportBox(0, _color, Icons.folder_open,
+                                  'Save to Device'),
+                              SizedBox(width: 10),
+                              exportBox(1, _color, Icons.reply, 'Share'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          SizedBox(height: 10),
-
-          // Export Range
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Start Date
-              dateSelect('Start', _startDate),
-
-              // End Date
-              dateSelect('End', _endDate)
-            ],
-          ),
-          SizedBox(height: 10),
-
-          // Export Type
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Export Type',
-                    style: TextStyle(
-                        color: Color(_color), fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      exportBox(0, _color, Icons.folder_open, 'Save to Device'),
-                      SizedBox(width: 10),
-                      exportBox(1, _color, Icons.reply, 'Share'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+            )));
   }
 
   Expanded dateSelect(String pos, DateTime dateTime) {
@@ -149,27 +161,27 @@ class _ExportPageState extends State<ExportPage> {
               SizedBox(height: 10),
               InkWell(
                 onTap: () async {
-                  final DateTime? selectedDate =
-                        await showDatePicker(
-                      context: context,
-                      initialDate: dateTime,
-                      firstDate: DateTime(0),
-                      lastDate: DateTime.now(),
-                    );
-                    if (selectedDate != null &&
-                        selectedDate != dateTime) {
-                      
-                      if (pos == 'Start') {
-                        setState(() {
+                  final DateTime? selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: dateTime,
+                    firstDate: pos == 'Start'
+                        ? DateTime(0)
+                        : _startDate.add(Duration(days: 1)),
+                    lastDate: pos == 'Start'
+                        ? _endDate.subtract(Duration(days: 1))
+                        : DateTime.now(),
+                  );
+                  if (selectedDate != null && selectedDate != dateTime) {
+                    if (pos == 'Start') {
+                      setState(() {
                         _startDate = selectedDate;
                       });
-                      } else {
-                        setState(() {
+                    } else {
+                      setState(() {
                         _endDate = selectedDate;
                       });
-                      }
-                      
-                      }
+                    }
+                  }
                 },
                 child: Container(
                   height: 50,
@@ -366,7 +378,8 @@ class _ExportPageState extends State<ExportPage> {
 
       if (_exportType == 1) {
         Share.shareFiles(['$selectedDirectory' + '${await file}' + '.xlsx'],
-            text: '${widget.currentAccount.name} Export');}
+            text: '${widget.currentAccount.name} Export');
+      }
     }
 
     // Return Success Message
@@ -464,12 +477,12 @@ class _ExportPageState extends State<ExportPage> {
     List<List<dynamic>> entries = createEntries(transactions);
 
     // Iterate Through Entries and Import to Sheet
-    for (var i = 0 ; i < entries.length ; i++) {
+    for (var i = 0; i < entries.length; i++) {
       sheet.importList(entries[i], i + 2, 1, false);
     }
 
     final List<int> bytes = workbook.saveAsStream();
-    
+
     workbook.dispose();
 
     return bytes;
@@ -492,7 +505,8 @@ class _ExportPageState extends State<ExportPage> {
 
       // Create CSV File Rows
       entry = [];
-      entry.add('${transactions[i].dateTime.day}/${transactions[i].dateTime.month}/${transactions[i].dateTime.year}');
+      entry.add(
+          '${transactions[i].dateTime.day}/${transactions[i].dateTime.month}/${transactions[i].dateTime.year}');
 
       if (transactions[i].type == 1) {
         entry.add('Expense');
