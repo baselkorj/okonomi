@@ -8,9 +8,15 @@ import 'package:okonomi/screens/home.dart';
 
 class ManTransaction extends StatefulWidget {
   final currentKey;
+  final currentState;
+  final currentTranKey;
   final currentCurrency;
 
-  ManTransaction({this.currentKey, this.currentCurrency});
+  ManTransaction(
+      {this.currentKey,
+      this.currentState,
+      this.currentTranKey,
+      this.currentCurrency});
 
   @override
   _ManTransactionState createState() => _ManTransactionState();
@@ -41,14 +47,31 @@ class _ManTransactionState extends State<ManTransaction> {
         child: Form(
             key: _transactionForm,
             child: Scaffold(
+              // App Bar
               appBar: AppBar(
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
                 title: Text(
-                  'Add Transaction',
+                  widget.currentState == 0
+                      ? 'Add Transaction'
+                      : 'Edit Transaction',
                   style: TextStyle(color: Colors.white),
                 ),
                 backgroundColor: Color(_color),
+                actions: [
+                  widget.currentState == 0
+                      ? Container()
+                      : IconButton(
+                          onPressed: () {
+                            showDialog<String>(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    deleteDialog(widget.currentKey));
+                          },
+                          icon: Icon(Icons.delete, color: Colors.white))
+                ],
               ),
+
+              // Save Button
               floatingActionButton: FloatingActionButton(
                   backgroundColor: Color(_color),
                   child: Icon(Icons.save),
@@ -172,7 +195,7 @@ class _ManTransactionState extends State<ManTransaction> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Payee',
+                                    _type == 1 ? 'Payer' : 'Payee',
                                     style: TextStyle(
                                         color: Color(_color),
                                         fontWeight: FontWeight.w700),
@@ -529,5 +552,40 @@ class _ManTransactionState extends State<ManTransaction> {
 
     final box = Boxes.getTransactions();
     box.add(transaction);
+  }
+
+  AlertDialog deleteDialog(int key) {
+    return AlertDialog(
+      title: Text(
+        'Caution!',
+        style: TextStyle(height: 1.5),
+      ),
+      content: Text(
+        "Are you sure you want to delete this transaction?",
+        style: TextStyle(color: Colors.black45),
+      ),
+      actions: <Widget>[
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.black54),
+            )),
+        ElevatedButton(
+            child: Text('Delete', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(primary: Color(color1)),
+            onPressed: () async {
+              Navigator.pop(context);
+              await deleteTransaction(key);
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Home()));
+            }),
+      ],
+    );
+  }
+
+  Future deleteTransaction(int key) async {
+    final box = Boxes.getTransactions();
+    box.delete(key);
   }
 }

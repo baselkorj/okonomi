@@ -35,6 +35,10 @@ class _HomeState extends State<Home> {
 
   int _currentMonth = 10;
 
+  int _color = color1;
+  DateTime _startDate = DateTime.now().subtract(Duration(days: 30));
+  DateTime _endDate = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     // Safety Net: Reset Global Values
@@ -102,7 +106,13 @@ class _HomeState extends State<Home> {
                 backgroundColor: Colors.white,
                 actions: [
                   IconButton(onPressed: () {}, icon: Icon(Icons.sort)),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.event)),
+                  IconButton(
+                      onPressed: () {
+                        showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => rangeDialog());
+                      },
+                      icon: Icon(Icons.event)),
                 ],
               ),
 
@@ -281,9 +291,9 @@ class _HomeState extends State<Home> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ManTransaction(
-                                    currentKey: _currentAccount.key,
-                                    currentCurrency: _currentAccount.currency,
-                                  )));
+                                  currentKey: _currentAccount.key,
+                                  currentCurrency: _currentAccount.currency,
+                                  currentState: 0)));
                     },
                     label: Text('Transaction'),
                     icon: Icon(Icons.add),
@@ -297,7 +307,9 @@ class _HomeState extends State<Home> {
               body: Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                  width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
+                  width: screenWidth > 550
+                      ? 550
+                      : MediaQuery.of(context).size.width,
                   child: ValueListenableBuilder<Box<Transaction>>(
                       valueListenable: Boxes.getTransactions().listenable(),
                       builder: (context, box, _) {
@@ -307,7 +319,7 @@ class _HomeState extends State<Home> {
                             .where((transaction) =>
                                 transaction.dateTime.month == _currentMonth)
                             .toList();
-                
+
                         if (transactions.isNotEmpty) {
                           // Calculate Transactions
                           for (int i = 0; i < transactions.length; i++) {
@@ -315,22 +327,22 @@ class _HomeState extends State<Home> {
                                 ? isExpense(transactions[i].amount)
                                 : isIncome(transactions[i].amount);
                           }
-                
+
                           // Create Day Map
                           _currentDayMap.clear();
-                
+
                           for (int m = 31; m >= 0; m--) {
                             final dailyTransactions = transactions
-                                .where(
-                                    (transaction) => transaction.dateTime.day == m)
+                                .where((transaction) =>
+                                    transaction.dateTime.day == m)
                                 .toList();
-                
+
                             if (dailyTransactions.isNotEmpty) {
                               _currentDayMap.putIfAbsent(
                                   m, () => dailyTransactions);
                             }
                           }
-                
+
                           return SingleChildScrollView(
                               physics: BouncingScrollPhysics(),
                               child: Padding(
@@ -341,17 +353,16 @@ class _HomeState extends State<Home> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-
                                         SizedBox(width: 4),
 
                                         // Income
                                         countTile('Income', _income, color2),
                                         SizedBox(width: 10),
-                
+
                                         // Expense
                                         countTile('Expense', _expense, color1),
                                         SizedBox(width: 10),
-                
+
                                         // Total
                                         countTile('Total', _total, color3),
 
@@ -359,7 +370,7 @@ class _HomeState extends State<Home> {
                                       ],
                                     ),
                                     SizedBox(height: 15),
-                
+
                                     // Transactions List
                                     ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
@@ -369,7 +380,7 @@ class _HomeState extends State<Home> {
                                           (BuildContext context, int index) {
                                         var _thisDay =
                                             _currentDayMap.keys.toList()[index];
-                
+
                                         return Column(
                                           children: [
                                             Card(
@@ -384,7 +395,8 @@ class _HomeState extends State<Home> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Padding(
-                                                      padding: EdgeInsets.all(10),
+                                                      padding:
+                                                          EdgeInsets.all(10),
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -398,19 +410,22 @@ class _HomeState extends State<Home> {
                                                               Text(
                                                                   '${months[_currentMonth - 1]} $_thisDay',
                                                                   style: TextStyle(
-                                                                      fontSize: 12,
+                                                                      fontSize:
+                                                                          12,
                                                                       color: Colors
                                                                           .black54)),
                                                               Text(
                                                                   '${dateIndent(_thisDay)}',
                                                                   style: TextStyle(
-                                                                      fontSize: 8,
+                                                                      fontSize:
+                                                                          8,
                                                                       color: Colors
                                                                           .black54)),
                                                               Text(
                                                                   ' | ${DateFormat('E').format(_currentDayMap[_thisDay][0].dateTime)}',
                                                                   style: TextStyle(
-                                                                      fontSize: 12,
+                                                                      fontSize:
+                                                                          12,
                                                                       color: Colors
                                                                           .black54)),
                                                             ],
@@ -427,9 +442,9 @@ class _HomeState extends State<Home> {
                                                     height: 5,
                                                   ),
                                                   ListView.builder(
-                                                      itemCount:
-                                                          _currentDayMap[_thisDay]
-                                                              .length,
+                                                      itemCount: _currentDayMap[
+                                                              _thisDay]
+                                                          .length,
                                                       physics:
                                                           NeverScrollableScrollPhysics(),
                                                       shrinkWrap: true,
@@ -437,16 +452,35 @@ class _HomeState extends State<Home> {
                                                           (BuildContext context,
                                                               int index) {
                                                         var _currentAccess =
-                                                            _currentDayMap[_thisDay]
+                                                            _currentDayMap[
+                                                                    _thisDay]
                                                                 .toList()[index];
-                
+
                                                         return ListTile(
+                                                          onTap: () {
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder: (context) => ManTransaction(
+                                                                        currentKey:
+                                                                            _currentAccess
+                                                                                .account,
+                                                                        currentTranKey:
+                                                                            _currentAccess
+                                                                                .key,
+                                                                        currentCurrency:
+                                                                            _currentAccount
+                                                                                .currency,
+                                                                        currentState:
+                                                                            1)));
+                                                          },
                                                           title: Text(
                                                               '${_currentAccess.category}'),
                                                           subtitle: Text(
                                                             '${_currentAccess.note}',
                                                             overflow:
-                                                                TextOverflow.fade,
+                                                                TextOverflow
+                                                                    .fade,
                                                             softWrap: false,
                                                           ),
                                                           leading: _currentAccess
@@ -454,7 +488,8 @@ class _HomeState extends State<Home> {
                                                                   1
                                                               ? CircleAvatar(
                                                                   backgroundColor:
-                                                                      Color(color1),
+                                                                      Color(
+                                                                          color1),
                                                                   child: Icon(
                                                                       expenseCategories[
                                                                           _currentAccess
@@ -463,7 +498,8 @@ class _HomeState extends State<Home> {
                                                                           .white))
                                                               : CircleAvatar(
                                                                   backgroundColor:
-                                                                      Color(color2),
+                                                                      Color(
+                                                                          color2),
                                                                   child: Icon(
                                                                       incomeCategories[
                                                                           _currentAccess
@@ -551,6 +587,90 @@ class _HomeState extends State<Home> {
     } else {
       return 'th';
     }
+  }
+
+  AlertDialog rangeDialog() {
+    return AlertDialog(
+      title: Text(
+        'Select Date',
+        style: TextStyle(height: 1.5),
+      ),
+      content: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Start Date
+          dateSelect('Start', _startDate),
+
+          // End Date
+          dateSelect('End', _endDate)
+        ],
+      ),
+    );
+  }
+
+  Expanded dateSelect(String pos, DateTime dateTime) {
+    return Expanded(
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$pos Date',
+                style: TextStyle(
+                    color: Color(_color), fontWeight: FontWeight.w700),
+              ),
+              SizedBox(height: 10),
+              InkWell(
+                onTap: () async {
+                  final DateTime? selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: dateTime,
+                    firstDate: pos == 'Start'
+                        ? DateTime(0)
+                        : _startDate.add(Duration(days: 1)),
+                    lastDate: pos == 'Start'
+                        ? _endDate.subtract(Duration(days: 1))
+                        : DateTime.now(),
+                  );
+                  if (selectedDate != null && selectedDate != dateTime) {
+                    if (pos == 'Start') {
+                      setState(() {
+                        _startDate = selectedDate;
+                      });
+                    } else {
+                      setState(() {
+                        _endDate = selectedDate;
+                      });
+                    }
+                  }
+                },
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: Color(_color),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year}',
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 15),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

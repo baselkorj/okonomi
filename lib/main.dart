@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:okonomi/models/db.dart';
-import 'package:okonomi/models/shared.dart';
 import 'package:okonomi/screens/home.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -19,22 +18,37 @@ void main() async {
   await Hive.openBox<Transaction>('transactions');
   await Hive.openBox<Account>('accounts');
 
-  runApp(MyApp());
+  runApp(
+    RestartWidget(),
+  );
 }
 
-class MyApp extends StatelessWidget {
+class RestartWidget extends StatefulWidget {
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_RestartWidgetState>()!.restartApp();
+  }
+
+  @override
+  _RestartWidgetState createState() => _RestartWidgetState();
+}
+
+class _RestartWidgetState extends State<RestartWidget> {
+  Key key = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        theme: ThemeData(
-          brightness: Brightness.light,
-        ),
-        darkTheme: ThemeData(
-          brightness: Brightness.light,
-        ),
-        themeMode: ThemeMode.light,
-        debugShowCheckedModeBanner: false,
-        title: 'Okonomi Finance Manager',
-        home: Home());
+    return KeyedSubtree(
+      key: key,
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Okonomi Finance Manager',
+          home: Home()),
+    );
   }
 }

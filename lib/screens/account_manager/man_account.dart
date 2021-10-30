@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
+import 'package:okonomi/main.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/account_manager/account_global.dart' as global;
 import 'package:okonomi/screens/account_manager/currency_chooser.dart';
-import 'package:okonomi/screens/home.dart';
 
 class ManAccount extends StatefulWidget {
   final currentKey;
@@ -406,8 +406,6 @@ class _ManAccountState extends State<ManAccount> {
             onPressed: () async {
               Navigator.pop(context);
               await deleteAccount(key);
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => Home()));
             }),
       ],
     );
@@ -460,7 +458,21 @@ class _ManAccountState extends State<ManAccount> {
   }
 
   Future deleteAccount(int key) async {
-    final box = Boxes.getAccounts();
-    box.delete(key);
+    final accounts = Boxes.getAccounts();
+
+    final transactions = Boxes.getTransactions()
+        .values
+        .where((transaction) => transaction.account == key)
+        .toList();
+
+    // Delete All Transactions Under the Account
+    for (var i = 0; i < transactions.length; i++) {
+      Boxes.getTransactions().delete(transactions[i].key);
+    }
+
+    // Delete the Account
+    accounts.delete(key);
+
+    RestartWidget.restartApp(context);
   }
 }
