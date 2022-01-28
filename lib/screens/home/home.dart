@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/lists.dart';
@@ -8,6 +7,8 @@ import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/account_manager/man_account.dart';
 import 'package:okonomi/screens/export.dart';
+import 'package:okonomi/screens/home/widgets/countTile.dart';
+import 'package:okonomi/screens/home/widgets/dateDialog.dart';
 import 'package:okonomi/screens/man_transaction.dart';
 import 'package:okonomi/screens/account_manager/account_global.dart' as global;
 import 'package:intl/intl.dart';
@@ -33,7 +34,7 @@ class _HomeState extends State<Home> {
 
   Map _currentDayMap = {};
 
-  int _currentMonth = 10;
+  int _currentMonth = 1;
 
   int _color = color1;
   DateTime _startDate = DateTime.now().subtract(Duration(days: 30));
@@ -110,7 +111,7 @@ class _HomeState extends State<Home> {
                       onPressed: () {
                         showDialog<String>(
                             context: context,
-                            builder: (BuildContext context) => rangeDialog());
+                            builder: (BuildContext context) => dateDialog());
                       },
                       icon: Icon(Icons.event)),
                 ],
@@ -542,41 +543,6 @@ class _HomeState extends State<Home> {
         });
   }
 
-  Expanded countTile(String title, double amount, int color) {
-    return Expanded(
-        child: Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: Offset(0, 2), // changes position of shadow
-                  ),
-                ],
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: Color(color)),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  title,
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 15),
-                Text(
-                  '$amount',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                  ),
-                ),
-                SizedBox(height: 10)
-              ],
-            )));
-  }
-
   String dateIndent(int day) {
     if (day == 1) {
       return 'st';
@@ -587,90 +553,6 @@ class _HomeState extends State<Home> {
     } else {
       return 'th';
     }
-  }
-
-  AlertDialog rangeDialog() {
-    return AlertDialog(
-      title: Text(
-        'Select Date',
-        style: TextStyle(height: 1.5),
-      ),
-      content: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Start Date
-          dateSelect('Start', _startDate),
-
-          // End Date
-          dateSelect('End', _endDate)
-        ],
-      ),
-    );
-  }
-
-  Expanded dateSelect(String pos, DateTime dateTime) {
-    return Expanded(
-      child: Card(
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$pos Date',
-                style: TextStyle(
-                    color: Color(_color), fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 10),
-              InkWell(
-                onTap: () async {
-                  final DateTime? selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate: dateTime,
-                    firstDate: pos == 'Start'
-                        ? DateTime(0)
-                        : _startDate.add(Duration(days: 1)),
-                    lastDate: pos == 'Start'
-                        ? _endDate.subtract(Duration(days: 1))
-                        : DateTime.now(),
-                  );
-                  if (selectedDate != null && selectedDate != dateTime) {
-                    if (pos == 'Start') {
-                      setState(() {
-                        _startDate = selectedDate;
-                      });
-                    } else {
-                      setState(() {
-                        _endDate = selectedDate;
-                      });
-                    }
-                  }
-                },
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Color(_color),
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year}',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 15),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -705,10 +587,10 @@ class NoAccounts extends StatelessWidget {
           ),
           SizedBox(height: 15),
           Text(
-            'No accounts found.',
+            'No transactions found.',
             style: TextStyle(color: Colors.black45),
           ),
-          Text('Add an account to get started.',
+          Text('Add a transaction to get started.',
               style: TextStyle(color: Colors.black45))
         ],
       )),
