@@ -4,7 +4,7 @@ import 'package:okonomi/boxes.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
-import 'package:okonomi/screens/home.dart';
+import 'package:okonomi/screens/home/home.dart';
 
 class ManTransaction extends StatefulWidget {
   final currentKey;
