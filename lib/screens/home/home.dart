@@ -34,11 +34,8 @@ class _HomeState extends State<Home> {
 
   Map _currentDayMap = {};
 
-  int _currentMonth = 1;
-
-  int _color = color1;
-  DateTime _startDate = DateTime.now().subtract(Duration(days: 30));
-  DateTime _endDate = DateTime.now();
+  int _currentMonth = DateTime.now().month;
+  int _currentYear = DateTime.now().year;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +95,7 @@ class _HomeState extends State<Home> {
                       ),
                       SizedBox(height: 1),
                       Text(
-                        "Aug 2021",
+                        '${months[_currentMonth]} ' '$_currentYear',
                         style: TextStyle(color: Colors.black54, fontSize: 14),
                       )
                     ],
@@ -109,9 +106,12 @@ class _HomeState extends State<Home> {
                   IconButton(onPressed: () {}, icon: Icon(Icons.sort)),
                   IconButton(
                       onPressed: () {
-                        showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) => dateDialog());
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DateDialog();
+                          },
+                        );
                       },
                       icon: Icon(Icons.event)),
                 ],
