@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/models/lists.dart';
-import 'package:okonomi/screens/account_manager/account_global.dart' as global;
+import 'package:okonomi/models/global.dart';
 
 class CurrencyChooser extends StatefulWidget {
   const CurrencyChooser({Key? key}) : super(key: key);
@@ -67,7 +67,7 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
                                 ),
                               ),
                               onTap: () {
-                                global.currentCurrency.value =
+                                currentAccount.value.currency =
                                     _currentList.keys.toList()[index];
                                 Navigator.pop(context);
                               },

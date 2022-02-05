@@ -10,7 +10,7 @@ import 'package:okonomi/screens/export.dart';
 import 'package:okonomi/screens/home/widgets/countTile.dart';
 import 'package:okonomi/screens/home/widgets/dateDialog.dart';
 import 'package:okonomi/screens/man_transaction.dart';
-import 'package:okonomi/screens/account_manager/account_global.dart' as global;
+import 'package:okonomi/models/global.dart';
 import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
@@ -73,7 +73,7 @@ class _HomeState extends State<Home> {
             }
 
             final mybox = Boxes.getAccounts();
-            final _currentAccount = mybox.get(_key);
+            currentAccount = ValueNotifier(mybox.get(_key)!);
 
             return Scaffold(
               // App Bar
@@ -85,10 +85,11 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${_currentAccount!.name}',
+                        '${currentAccount.value.name}',
                         overflow: TextOverflow.fade,
                         softWrap: false,
-                        style: TextStyle(color: Color(_currentAccount.color)),
+                        style:
+                            TextStyle(color: Color(currentAccount.value.color)),
                       ),
                       SizedBox(height: 1),
                       Text(
@@ -122,7 +123,7 @@ class _HomeState extends State<Home> {
                       padding: EdgeInsets.fromLTRB(30, 75, 0, 0),
                       child: Text('Accounts',
                           style: TextStyle(
-                              color: Color(_currentAccount.color),
+                              color: Color(currentAccount.value.color),
                               fontSize: 32)),
                     )),
                     Container(
@@ -194,18 +195,11 @@ class _HomeState extends State<Home> {
                                                         ),
                                                 ),
                                                 onTap: () {
-                                                  final account =
-                                                      accounts[index];
-
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
                                                           builder: (context) =>
                                                               ManAccount(
-                                                                  currentKey:
-                                                                      accounts[
-                                                                              index]
-                                                                          .key,
                                                                   currentState:
                                                                       1)));
                                                 },
@@ -228,7 +222,6 @@ class _HomeState extends State<Home> {
                                 Divider(),
                                 ListTile(
                                     onTap: () {
-                                      resetGlobals();
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -265,7 +258,7 @@ class _HomeState extends State<Home> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ExportPage(
-                                    currentAccount: _currentAccount,
+                                    currentAccount: currentAccount,
                                   )));
                     },
                     label: Text('Export'),
@@ -280,10 +273,8 @@ class _HomeState extends State<Home> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ManTransaction(
-                                  currentKey: _currentAccount.key,
-                                  currentCurrency: _currentAccount.currency,
-                                  currentState: 0)));
+                              builder: (context) =>
+                                  ManTransaction(currentState: 0)));
                     },
                     label: Text('Transaction'),
                     icon: Icon(Icons.add),
@@ -303,17 +294,9 @@ class _HomeState extends State<Home> {
                   child: ValueListenableBuilder<Box<Transaction>>(
                       valueListenable: Boxes.getTransactions().listenable(),
                       builder: (context, box, _) {
-                        // Prepare Account Globals
-                        updateGlobals(
-                            _currentAccount.name,
-                            _currentAccount.openAmount.toString(),
-                            _currentAccount.goalLimit.toString(),
-                            _currentAccount.color,
-                            _currentAccount.currency);
-
                         final transactions = box.values
                             .where((transaction) =>
-                                transaction.account == _currentAccount.key)
+                                transaction.account == currentAccount.value.key)
                             .where((transaction) =>
                                 transaction.dateTime.month == _currentMonth)
                             .toList();
@@ -459,18 +442,10 @@ class _HomeState extends State<Home> {
                                                             Navigator.push(
                                                                 context,
                                                                 MaterialPageRoute(
-                                                                    builder: (context) => ManTransaction(
-                                                                        currentKey:
-                                                                            _currentAccess
-                                                                                .account,
-                                                                        currentTranKey:
-                                                                            _currentAccess
-                                                                                .key,
-                                                                        currentCurrency:
-                                                                            _currentAccount
-                                                                                .currency,
-                                                                        currentState:
-                                                                            1)));
+                                                                    builder: (context) =>
+                                                                        ManTransaction(
+                                                                            currentState:
+                                                                                1)));
                                                           },
                                                           title: Text(
                                                               '${_currentAccess.category}'),
@@ -551,23 +526,6 @@ class _HomeState extends State<Home> {
       return 'th';
     }
   }
-}
-
-Future updateGlobals(
-    String name, String open, String goal, int color, String currency) async {
-  global.currentName = name;
-  global.currentOpenAmount = open;
-  global.currentGoalLimit = goal;
-  global.currentColor = color;
-  global.currentCurrency.value = currency;
-}
-
-Future resetGlobals() async {
-  global.currentName = '';
-  global.currentOpenAmount = '0.0';
-  global.currentGoalLimit = '0.0';
-  global.currentColor = 0xFFCB576C;
-  global.currentCurrency.value = 'AFN';
 }
 
 class NoAccounts extends StatelessWidget {

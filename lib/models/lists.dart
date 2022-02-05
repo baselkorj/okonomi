@@ -199,6 +199,7 @@ Map currenciesSymbolic = {
 };
 
 List months = [
+  '',
   'Jan',
   'Feb',
   'Mar',

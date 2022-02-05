@@ -5,15 +5,14 @@ import 'package:okonomi/main.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
-import 'package:okonomi/screens/account_manager/account_global.dart' as global;
+import 'package:okonomi/models/global.dart';
 import 'package:okonomi/screens/account_manager/currency_chooser.dart';
 
 class ManAccount extends StatefulWidget {
-  final currentKey;
   final currentState;
   final isUrgent;
 
-  ManAccount({this.currentKey, this.currentState, this.isUrgent});
+  ManAccount({this.currentState, this.isUrgent});
 
   @override
   _ManAccountState createState() => _ManAccountState();
@@ -22,9 +21,23 @@ class ManAccount extends StatefulWidget {
 GlobalKey<FormState> _accountForm = GlobalKey<FormState>();
 
 class _ManAccountState extends State<ManAccount> {
+  var _currentAccount = ValueNotifier(Account());
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
+    if (widget.currentState == 0) {
+      _currentAccount.value.name = '';
+      _currentAccount.value.currency = 'AED';
+      _currentAccount.value.color = 0xFFCB576C;
+      _currentAccount.value.openAmount = 0.0;
+      _currentAccount.value.income = 0.0;
+      _currentAccount.value.expenses = 0.0;
+      _currentAccount.value.goalLimit = 0.0;
+    } else {
+      _currentAccount = currentAccount;
+    }
 
     return FocusScope(
       child: Form(
@@ -36,7 +49,7 @@ class _ManAccountState extends State<ManAccount> {
             title: Text(
               widget.currentState == 0 ? 'Add Account' : 'Edit Account',
             ),
-            backgroundColor: Color(global.currentColor),
+            backgroundColor: Color(_currentAccount.value.color),
             actions: [
               widget.currentState == 0
                   ? Container()
@@ -45,7 +58,7 @@ class _ManAccountState extends State<ManAccount> {
                         showDialog<String>(
                             context: context,
                             builder: (BuildContext context) =>
-                                deleteDialog(widget.currentKey));
+                                deleteDialog(_currentAccount.value.key));
                       },
                       icon: Icon(Icons.delete, color: Colors.white))
             ],
@@ -53,23 +66,23 @@ class _ManAccountState extends State<ManAccount> {
 
           // Save Button
           floatingActionButton: FloatingActionButton(
-            backgroundColor: Color(global.currentColor),
+            backgroundColor: Color(_currentAccount.value.color),
             child: Icon(Icons.save, color: Colors.white),
             onPressed: () {
               if (_accountForm.currentState!.validate()) {
                 widget.currentState == 0
                     ? addAccount(
-                        global.currentName,
-                        global.currentCurrency.value,
-                        global.currentColor,
-                        double.parse(global.currentOpenAmount),
-                        double.parse(global.currentGoalLimit))
+                        _currentAccount.value.name,
+                        _currentAccount.value.currency,
+                        _currentAccount.value.color,
+                        _currentAccount.value.openAmount,
+                        _currentAccount.value.goalLimit)
                     : editAccount(
-                        global.currentName,
-                        global.currentCurrency.value,
-                        global.currentColor,
-                        double.parse(global.currentOpenAmount),
-                        double.parse(global.currentGoalLimit));
+                        _currentAccount.value.name,
+                        _currentAccount.value.currency,
+                        _currentAccount.value.color,
+                        _currentAccount.value.openAmount,
+                        _currentAccount.value.goalLimit);
                 if (widget.isUrgent != true) {
                   Navigator.pop(context);
                 }
@@ -104,7 +117,7 @@ class _ManAccountState extends State<ManAccount> {
                             Text(
                               'Account Name',
                               style: TextStyle(
-                                  color: Color(global.currentColor),
+                                  color: Color(_currentAccount.value.color),
                                   fontWeight: FontWeight.w700),
                             ),
                             SizedBox(height: 10),
@@ -113,18 +126,19 @@ class _ManAccountState extends State<ManAccount> {
                               final FocusNode focusNode = Focus.of(context);
                               final bool hasFocus = focusNode.hasFocus;
                               return TextFormField(
-                                  initialValue: global.currentName,
-                                  style:
-                                      textStyle(hasFocus, global.currentColor),
+                                  initialValue: _currentAccount.value.name,
+                                  style: textStyle(
+                                      hasFocus, _currentAccount.value.color),
                                   decoration: buildInputDecoration(
-                                      hasFocus, global.currentColor),
+                                      hasFocus, _currentAccount.value.color),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return '';
                                     }
                                     return null;
                                   },
-                                  onChanged: (val) => global.currentName = val);
+                                  onChanged: (val) =>
+                                      _currentAccount.value.name = val);
                             }))
                           ],
                         ),
@@ -145,7 +159,8 @@ class _ManAccountState extends State<ManAccount> {
                                   Text(
                                     'Opening Balance',
                                     style: TextStyle(
-                                        color: Color(global.currentColor),
+                                        color:
+                                            Color(_currentAccount.value.color),
                                         fontWeight: FontWeight.w700),
                                   ),
                                   SizedBox(height: 10),
@@ -160,12 +175,14 @@ class _ManAccountState extends State<ManAccount> {
                                             initialValue:
                                                 widget.currentState == 0
                                                     ? ''
-                                                    : global.currentOpenAmount,
-                                            style: textStyle(
-                                                hasFocus, global.currentColor),
+                                                    : _currentAccount
+                                                        .value.openAmount
+                                                        .toString(),
+                                            style: textStyle(hasFocus,
+                                                _currentAccount.value.color),
                                             decoration: buildInputDecoration(
                                                     hasFocus,
-                                                    global.currentColor)
+                                                    _currentAccount.value.color)
                                                 .copyWith(
                                               hintText: '0.0',
                                             ),
@@ -196,8 +213,9 @@ class _ManAccountState extends State<ManAccount> {
                                               }
                                               return null;
                                             },
-                                            onChanged: (val) =>
-                                                global.currentOpenAmount = val);
+                                            onChanged: (val) => _currentAccount
+                                                    .value.openAmount =
+                                                double.parse(val));
                                       },
                                     ),
                                   ),
@@ -217,7 +235,8 @@ class _ManAccountState extends State<ManAccount> {
                                   Text(
                                     'Goal / Limit',
                                     style: TextStyle(
-                                        color: Color(global.currentColor),
+                                        color:
+                                            Color(_currentAccount.value.color),
                                         fontWeight: FontWeight.w700),
                                   ),
                                   SizedBox(height: 10),
@@ -232,12 +251,14 @@ class _ManAccountState extends State<ManAccount> {
                                             initialValue:
                                                 widget.currentState == 0
                                                     ? ''
-                                                    : global.currentGoalLimit,
-                                            style: textStyle(
-                                                hasFocus, global.currentColor),
+                                                    : _currentAccount
+                                                        .value.goalLimit
+                                                        .toString(),
+                                            style: textStyle(hasFocus,
+                                                _currentAccount.value.color),
                                             decoration: buildInputDecoration(
                                                     hasFocus,
-                                                    global.currentColor)
+                                                    _currentAccount.value.color)
                                                 .copyWith(
                                               hintText: '0.0',
                                             ),
@@ -268,8 +289,9 @@ class _ManAccountState extends State<ManAccount> {
                                               }
                                               return null;
                                             },
-                                            onChanged: (val) =>
-                                                global.currentGoalLimit = val);
+                                            onChanged: (val) => _currentAccount
+                                                .value
+                                                .goalLimit = double.parse(val));
                                       },
                                     ),
                                   ),
@@ -292,28 +314,29 @@ class _ManAccountState extends State<ManAccount> {
                           Text(
                             'Choose Currency',
                             style: TextStyle(
-                                color: Color(global.currentColor),
+                                color: Color(_currentAccount.value.color),
                                 fontWeight: FontWeight.w700),
                           ),
                           SizedBox(height: 10),
                           Card(
                             child: ValueListenableBuilder(
-                              valueListenable: global.currentCurrency,
+                              valueListenable: _currentAccount,
                               builder: (context, value, _) {
                                 return ListTile(
                                   title: Text(
-                                      '${currenciesSymbolic[global.currentCurrency.value][0]}'),
+                                      '${currenciesSymbolic[_currentAccount.value.currency][0]}'),
                                   subtitle:
-                                      Text('${global.currentCurrency.value}'),
+                                      Text('${_currentAccount.value.currency}'),
                                   leading: CircleAvatar(
                                     backgroundColor: Colors.transparent,
                                     child: Text(
-                                      '${currenciesSymbolic[global.currentCurrency.value][1]}',
+                                      '${currenciesSymbolic[_currentAccount.value.currency][1]}',
                                       style: TextStyle(fontSize: 32),
                                     ),
                                   ),
                                   trailing: Icon(Icons.edit,
-                                      color: Color(global.currentColor)),
+                                      color:
+                                          Color(_currentAccount.value.color)),
                                   onTap: () {
                                     Navigator.push(
                                         context,
@@ -340,7 +363,7 @@ class _ManAccountState extends State<ManAccount> {
                             Text(
                               'Color Tag',
                               style: TextStyle(
-                                  color: Color(global.currentColor),
+                                  color: Color(_currentAccount.value.color),
                                   fontWeight: FontWeight.w700),
                             ),
                             SizedBox(height: 10),
@@ -416,13 +439,13 @@ class _ManAccountState extends State<ManAccount> {
         borderRadius: BorderRadius.circular(100),
         onTap: () {
           setState(() {
-            global.currentColor = color;
+            _currentAccount.value.color = color;
           });
         },
         child: CircleAvatar(
             backgroundColor: Color(color),
             radius: 18,
-            child: global.currentColor == color
+            child: _currentAccount.value.color == color
                 ? Icon(Icons.check, size: 28, color: Colors.white)
                 : Container()));
   }
@@ -454,7 +477,7 @@ class _ManAccountState extends State<ManAccount> {
       ..goalLimit = goalLimit;
 
     final box = Boxes.getAccounts();
-    box.putAt(widget.currentKey, account);
+    box.putAt(_currentAccount.value.key, account);
   }
 
   Future deleteAccount(int key) async {

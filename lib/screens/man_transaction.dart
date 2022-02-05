@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
+import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/home/home.dart';
 
 class ManTransaction extends StatefulWidget {
-  final currentKey;
   final currentState;
   final currentTranKey;
-  final currentCurrency;
 
-  ManTransaction(
-      {this.currentKey,
-      this.currentState,
-      this.currentTranKey,
-      this.currentCurrency});
+  ManTransaction({
+    this.currentState,
+    this.currentTranKey,
+  });
 
   @override
   _ManTransactionState createState() => _ManTransactionState();
@@ -65,7 +63,7 @@ class _ManTransactionState extends State<ManTransaction> {
                             showDialog<String>(
                                 context: context,
                                 builder: (BuildContext context) =>
-                                    deleteDialog(widget.currentKey));
+                                    deleteDialog(widget.currentTranKey));
                           },
                           icon: Icon(Icons.delete, color: Colors.white))
                 ],
@@ -77,8 +75,14 @@ class _ManTransactionState extends State<ManTransaction> {
                   child: Icon(Icons.save),
                   onPressed: () async {
                     if (_transactionForm.currentState!.validate()) {
-                      addTransaction(_payee, widget.currentKey, _category,
-                          _note, _type, double.parse(_amount), _dateTime);
+                      addTransaction(
+                          _payee,
+                          currentAccount.value.key,
+                          _category,
+                          _note,
+                          _type,
+                          double.parse(_amount),
+                          _dateTime);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => Home()));
                     } else {
@@ -156,7 +160,7 @@ class _ManTransactionState extends State<ManTransaction> {
                                                 hasFocus, _color)
                                             .copyWith(
                                                 prefixText:
-                                                    '${widget.currentCurrency}  '),
+                                                    '${currentAccount.value.currency}  '),
                                         inputFormatters: [
                                           FilteringTextInputFormatter.allow(
                                               RegExp(r"[0-9.]")),
