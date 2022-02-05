@@ -39,9 +39,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Safety Net: Reset Global Values
-    resetGlobals();
-
     double _income = 0;
     double _expense = 0;
     double _total = 0;
@@ -137,6 +134,7 @@ class _HomeState extends State<Home> {
                                 itemCount: accounts.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   final account = accounts[index];
+
                                   return Padding(
                                     padding: EdgeInsets.only(
                                         left: 10, right: 10, top: 10),
@@ -198,15 +196,6 @@ class _HomeState extends State<Home> {
                                                 onTap: () {
                                                   final account =
                                                       accounts[index];
-                                                  // Prepare Account Globals
-                                                  updateGlobals(
-                                                      account.name,
-                                                      account.openAmount
-                                                          .toString(),
-                                                      account.goalLimit
-                                                          .toString(),
-                                                      account.color,
-                                                      account.currency);
 
                                                   Navigator.push(
                                                       context,
@@ -314,6 +303,14 @@ class _HomeState extends State<Home> {
                   child: ValueListenableBuilder<Box<Transaction>>(
                       valueListenable: Boxes.getTransactions().listenable(),
                       builder: (context, box, _) {
+                        // Prepare Account Globals
+                        updateGlobals(
+                            _currentAccount.name,
+                            _currentAccount.openAmount.toString(),
+                            _currentAccount.goalLimit.toString(),
+                            _currentAccount.color,
+                            _currentAccount.currency);
+
                         final transactions = box.values
                             .where((transaction) =>
                                 transaction.account == _currentAccount.key)
@@ -409,7 +406,7 @@ class _HomeState extends State<Home> {
                                                                     .start,
                                                             children: [
                                                               Text(
-                                                                  '${months[_currentMonth - 1]} $_thisDay',
+                                                                  '${months[_currentMonth]} $_thisDay',
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           12,
