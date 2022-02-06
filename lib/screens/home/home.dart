@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:okonomi/boxes.dart';
-import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/account_manager/man_account.dart';
-import 'package:okonomi/screens/export.dart';
+import 'package:okonomi/screens/home/widgets/accountActionButtons.dart';
 import 'package:okonomi/screens/home/widgets/countTile.dart';
-import 'package:okonomi/screens/home/widgets/dateDialog.dart';
-import 'package:okonomi/screens/man_transaction.dart';
+import 'package:okonomi/screens/home/widgets/homeBar.dart';
+import 'package:okonomi/screens/home/widgets/noInstance.dart';
+import 'package:okonomi/screens/home/widgets/transactionsList.dart';
 import 'package:okonomi/models/global.dart';
-import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   final accounts;
@@ -83,46 +81,11 @@ class _HomeState extends State<Home> {
 
                   return Scaffold(
                     // App Bar
-                    appBar: AppBar(
-                      systemOverlayStyle: SystemUiOverlayStyle.light,
-                      iconTheme: IconThemeData(color: Colors.black87),
-                      title: InkWell(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${currentAccount.value.name}',
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: TextStyle(
-                                  color: Color(currentAccount.value.color)),
-                            ),
-                            SizedBox(height: 1),
-                            Text(
-                              '${months[_currentMonth]} ' '$_currentYear',
-                              style: TextStyle(
-                                  color: Colors.black54, fontSize: 14),
-                            )
-                          ],
-                        ),
-                      ),
-                      backgroundColor: Colors.white,
-                      actions: [
-                        IconButton(onPressed: () {}, icon: Icon(Icons.sort)),
-                        IconButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return DateDialog(
-                                    month: _currentMonth,
-                                    year: _currentYear,
-                                  );
-                                },
-                              );
-                            },
-                            icon: Icon(Icons.event)),
-                      ],
+                    appBar: HomeBar(
+                      accountName: currentAccount.value.name,
+                      color: currentAccount.value.color,
+                      currentMonth: _currentMonth,
+                      currentYear: _currentYear,
                     ),
 
                     drawer: Drawer(
@@ -139,7 +102,7 @@ class _HomeState extends State<Home> {
                           Container(
                             child: Expanded(
                               child: accounts.isEmpty
-                                  ? NoAccounts()
+                                  ? NoInstance()
                                   : ListView.builder(
                                       physics: BouncingScrollPhysics(),
                                       itemCount: accounts.length,
@@ -270,42 +233,7 @@ class _HomeState extends State<Home> {
                     ),
 
                     // Export Button
-                    floatingActionButton: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        FloatingActionButton.extended(
-                          heroTag: 'export',
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ExportPage(
-                                          currentAccount: currentAccount,
-                                        )));
-                          },
-                          label: Text('Export'),
-                          icon: Icon(Icons.print),
-                          backgroundColor: Color(color1),
-                          elevation: 4,
-                        ),
-                        SizedBox(height: 10),
-                        FloatingActionButton.extended(
-                          heroTag: 'add_transaction',
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        ManTransaction(currentState: 0)));
-                          },
-                          label: Text('Transaction'),
-                          icon: Icon(Icons.add),
-                          backgroundColor: Color(color4),
-                          elevation: 4,
-                        ),
-                      ],
-                    ),
+                    floatingActionButton: AccountActionButtons(),
 
                     // Body
                     body: Align(
@@ -351,6 +279,7 @@ class _HomeState extends State<Home> {
                                         m, () => dailyTransactions);
                                   }
                                 }
+
                                 return SingleChildScrollView(
                                     physics: BouncingScrollPhysics(),
                                     child: Padding(
@@ -365,186 +294,36 @@ class _HomeState extends State<Home> {
                                               SizedBox(width: 4),
 
                                               // Income
-                                              countTile(
-                                                  'Income', _income, color2),
+                                              CountTile(
+                                                  amount: _income,
+                                                  color: color2,
+                                                  title: 'Income'),
                                               SizedBox(width: 10),
 
                                               // Expense
-                                              countTile(
-                                                  'Expense', _expense, color1),
+                                              CountTile(
+                                                  amount: _expense,
+                                                  color: color1,
+                                                  title: 'Expense'),
                                               SizedBox(width: 10),
 
                                               // Total
-                                              countTile(
-                                                  'Total', _total, color3),
+                                              CountTile(
+                                                  amount: _total,
+                                                  color: color3,
+                                                  title: 'Total'),
 
                                               SizedBox(width: 4),
                                             ],
                                           ),
                                           SizedBox(height: 15),
-
-                                          // Transactions List
-                                          ListView.builder(
-                                            physics:
-                                                NeverScrollableScrollPhysics(),
-                                            shrinkWrap: true,
-                                            itemCount:
-                                                _currentDayMap.keys.length,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              var _thisDay = _currentDayMap.keys
-                                                  .toList()[index];
-
-                                              return Column(
-                                                children: [
-                                                  Card(
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                    elevation: 3,
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Padding(
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                    10),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: [
-                                                                Row(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                        '${months[_currentMonth]} $_thisDay',
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                12,
-                                                                            color:
-                                                                                Colors.black54)),
-                                                                    Text(
-                                                                        '${dateIndent(_thisDay)}',
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                8,
-                                                                            color:
-                                                                                Colors.black54)),
-                                                                    Text(
-                                                                        ' | ${DateFormat('E').format(_currentDayMap[_thisDay][0].dateTime)}',
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                12,
-                                                                            color:
-                                                                                Colors.black54)),
-                                                                  ],
-                                                                ),
-                                                                Text(
-                                                                    'Total: 15325',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .black54)),
-                                                              ],
-                                                            )),
-                                                        Divider(
-                                                          color: Colors.black26,
-                                                          height: 5,
-                                                        ),
-                                                        ListView.builder(
-                                                            itemCount:
-                                                                _currentDayMap[
-                                                                        _thisDay]
-                                                                    .length,
-                                                            physics:
-                                                                NeverScrollableScrollPhysics(),
-                                                            shrinkWrap: true,
-                                                            itemBuilder:
-                                                                (BuildContext
-                                                                        context,
-                                                                    int index) {
-                                                              var _currentAccess =
-                                                                  _currentDayMap[
-                                                                          _thisDay]
-                                                                      .toList()[index];
-
-                                                              return ListTile(
-                                                                onTap: () {
-                                                                  Navigator.push(
-                                                                      context,
-                                                                      MaterialPageRoute(
-                                                                          builder: (context) =>
-                                                                              ManTransaction(currentState: 1)));
-                                                                },
-                                                                title: Text(
-                                                                    '${_currentAccess.category}'),
-                                                                subtitle: Text(
-                                                                  '${_currentAccess.note}',
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .fade,
-                                                                  softWrap:
-                                                                      false,
-                                                                ),
-                                                                leading: _currentAccess
-                                                                            .type ==
-                                                                        1
-                                                                    ? CircleAvatar(
-                                                                        backgroundColor:
-                                                                            Color(
-                                                                                color1),
-                                                                        child: Icon(
-                                                                            expenseCategories[_currentAccess
-                                                                                .category],
-                                                                            color: Colors
-                                                                                .white))
-                                                                    : CircleAvatar(
-                                                                        backgroundColor:
-                                                                            Color(
-                                                                                color2),
-                                                                        child: Icon(
-                                                                            incomeCategories[_currentAccess
-                                                                                .category],
-                                                                            color:
-                                                                                Colors.white)),
-                                                                trailing: _currentAccess
-                                                                            .type ==
-                                                                        1
-                                                                    ? Text(
-                                                                        '-${_currentAccess.amount}',
-                                                                        style: TextStyle(
-                                                                            color: Color(
-                                                                                color1)))
-                                                                    : Text(
-                                                                        '+${_currentAccess.amount}',
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Color(color2))),
-                                                              );
-                                                            }),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 10)
-                                                ],
-                                              );
-                                            },
-                                          ),
+                                          TransactionsList(
+                                              currentDayMap: _currentDayMap,
+                                              currentMonth: _currentMonth),
                                           SizedBox(height: 125),
                                         ])));
                               } else {
-                                return NoAccounts();
+                                return NoInstance();
                               }
                             }),
                       ),
@@ -553,42 +332,5 @@ class _HomeState extends State<Home> {
                 });
           }
         });
-  }
-
-  String dateIndent(int day) {
-    if (day == 1) {
-      return 'st';
-    } else if (day == 2) {
-      return 'nd';
-    } else if (day == 3) {
-      return 'rd';
-    } else {
-      return 'th';
-    }
-  }
-}
-
-class NoAccounts extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: (Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.search_off_rounded,
-            size: 64,
-            color: Colors.black45,
-          ),
-          SizedBox(height: 15),
-          Text(
-            'No transactions found.',
-            style: TextStyle(color: Colors.black45),
-          ),
-          Text('Add a transaction to get started.',
-              style: TextStyle(color: Colors.black45))
-        ],
-      )),
-    );
   }
 }
