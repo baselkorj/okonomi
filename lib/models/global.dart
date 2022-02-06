@@ -11,3 +11,5 @@ ValueNotifier<Account> currentAccount = ValueNotifier(Account()
   ..goalLimit = 0.0);
 
 ValueNotifier currentCurrency = ValueNotifier('AED');
+ValueNotifier currentDate =
+    ValueNotifier([DateTime.now().month, DateTime.now().year]);
