@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/boxes.dart';
+import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:pdf/widgets.dart' as pdfWid;
@@ -12,10 +13,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 class ExportPage extends StatefulWidget {
-  final currentAccount;
-
-  ExportPage({this.currentAccount});
-
   @override
   _ExportPageState createState() => _ExportPageState();
 }
@@ -311,8 +308,7 @@ class _ExportPageState extends State<ExportPage> {
   Future exportAccount() async {
     final transactions = Boxes.getTransactions()
         .values
-        .where(
-            (transaction) => transaction.account == widget.currentAccount.key)
+        .where((transaction) => transaction.account == currentAccount.value.key)
         .where((transaction) =>
             transaction.dateTime.isAfter(_startDate) &&
             transaction.dateTime.isBefore(_endDate))
@@ -360,7 +356,7 @@ class _ExportPageState extends State<ExportPage> {
 
       if (_exportType == 1) {
         Share.shareFiles(['$selectedDirectory' + '${await file}' + '.csv'],
-            text: '${widget.currentAccount.name} Export');
+            text: '${currentAccount.value.name} Export');
       }
     } else if (_formatType == 1) {
       f = File('$selectedDirectory' + '${await file}' + '.pdf');
@@ -369,7 +365,7 @@ class _ExportPageState extends State<ExportPage> {
 
       if (_exportType == 1) {
         Share.shareFiles(['$selectedDirectory' + '${await file}' + '.pdf'],
-            text: '${widget.currentAccount.name} Export');
+            text: '${currentAccount.value.name} Export');
       }
     } else if (_formatType == 2) {
       f = File('$selectedDirectory' + '${await file}' + '.xlsx');
@@ -378,7 +374,7 @@ class _ExportPageState extends State<ExportPage> {
 
       if (_exportType == 1) {
         Share.shareFiles(['$selectedDirectory' + '${await file}' + '.xlsx'],
-            text: '${widget.currentAccount.name} Export');
+            text: '${currentAccount.value.name} Export');
       }
     }
 
@@ -404,7 +400,7 @@ class _ExportPageState extends State<ExportPage> {
   // File Name Generator
   Future<String> nameFile() async {
     DateTime currentDate = DateTime.now();
-    String name = widget.currentAccount.name.toLowerCase().replaceAll(' ', '_');
+    String name = currentAccount.value.name.toLowerCase().replaceAll(' ', '_');
     var uuid = Uuid().v1().substring(1, 6);
 
     String file =
