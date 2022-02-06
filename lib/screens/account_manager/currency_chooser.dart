@@ -67,7 +67,7 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
                                 ),
                               ),
                               onTap: () {
-                                currentAccount.value.currency =
+                                currentCurrency.value =
                                     _currentList.keys.toList()[index];
                                 Navigator.pop(context);
                               },

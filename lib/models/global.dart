@@ -9,3 +9,5 @@ ValueNotifier<Account> currentAccount = ValueNotifier(Account()
   ..income = 0.0
   ..expenses = 0.0
   ..goalLimit = 0.0);
+
+ValueNotifier currentCurrency = ValueNotifier('AED');
