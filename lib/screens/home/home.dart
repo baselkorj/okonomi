@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:okonomi/boxes.dart';
+import 'package:okonomi/models/boxes.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/screens/account_manager/man_account.dart';

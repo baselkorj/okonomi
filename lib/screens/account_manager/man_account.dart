@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:okonomi/boxes.dart';
+import 'package:okonomi/models/boxes.dart';
 import 'package:okonomi/main.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/models/lists.dart';

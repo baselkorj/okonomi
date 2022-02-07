@@ -3,7 +3,7 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:okonomi/boxes.dart';
+import 'package:okonomi/models/boxes.dart';
 import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/models/lists.dart';
