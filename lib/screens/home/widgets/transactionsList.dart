@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:intl/intl.dart';
 import 'package:okonomi/models/style.dart';
@@ -70,6 +71,7 @@ class TransactionsList extends StatelessWidget {
 
                         return ListTile(
                           onTap: () {
+                            currentTransaction.value = _currentAccess;
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

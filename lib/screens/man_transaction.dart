@@ -9,11 +9,9 @@ import 'package:okonomi/screens/home/home.dart';
 
 class ManTransaction extends StatefulWidget {
   final currentState;
-  final currentTranKey;
 
   ManTransaction({
     this.currentState,
-    this.currentTranKey,
   });
 
   @override
@@ -23,17 +21,24 @@ class ManTransaction extends StatefulWidget {
 GlobalKey<FormState> _transactionForm = GlobalKey<FormState>();
 
 class _ManTransactionState extends State<ManTransaction> {
-  String _category = 'Other';
-  int _type = 1;
-  String _amount = '';
-  String _payee = '';
-  String _note = '';
   int _color = color1;
-  DateTime _dateTime = DateTime.now();
+  var _currentTransaction = ValueNotifier(Transaction());
 
   @override
   Widget build(BuildContext context) {
-    if (_type == 1) {
+    if (widget.currentState == 1) {
+      _currentTransaction = currentTransaction;
+    } else {
+      _currentTransaction.value.account = 0;
+      _currentTransaction.value.amount = 0.0;
+      _currentTransaction.value.category = 'Other';
+      _currentTransaction.value.dateTime = DateTime.now();
+      _currentTransaction.value.note = '';
+      _currentTransaction.value.payee = '';
+      _currentTransaction.value.type = 1;
+    }
+
+    if (_currentTransaction.value.type == 1) {
       _color = color1;
     } else {
       _color = color2;
@@ -62,8 +67,8 @@ class _ManTransactionState extends State<ManTransaction> {
                           onPressed: () {
                             showDialog<String>(
                                 context: context,
-                                builder: (BuildContext context) =>
-                                    deleteDialog(widget.currentTranKey));
+                                builder: (BuildContext context) => deleteDialog(
+                                    _currentTransaction.value.key));
                           },
                           icon: Icon(Icons.delete, color: Colors.white))
                 ],
@@ -75,14 +80,23 @@ class _ManTransactionState extends State<ManTransaction> {
                   child: Icon(Icons.save),
                   onPressed: () async {
                     if (_transactionForm.currentState!.validate()) {
-                      addTransaction(
-                          _payee,
-                          currentAccount.value.key,
-                          _category,
-                          _note,
-                          _type,
-                          double.parse(_amount),
-                          _dateTime);
+                      widget.currentState == 0
+                          ? addTransaction(
+                              _currentTransaction.value.payee,
+                              currentAccount.value.key,
+                              _currentTransaction.value.category,
+                              _currentTransaction.value.note,
+                              _currentTransaction.value.type,
+                              _currentTransaction.value.amount,
+                              _currentTransaction.value.dateTime)
+                          : editTransaction(
+                              _currentTransaction.value.payee,
+                              currentAccount.value.key,
+                              _currentTransaction.value.category,
+                              _currentTransaction.value.note,
+                              _currentTransaction.value.type,
+                              _currentTransaction.value.amount,
+                              _currentTransaction.value.dateTime);
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => Home()));
                     } else {
@@ -155,6 +169,10 @@ class _ManTransactionState extends State<ManTransaction> {
                                     final bool hasFocus = focusNode.hasFocus;
                                     return TextFormField(
                                         autofocus: true,
+                                        initialValue: widget.currentState == 0
+                                            ? ''
+                                            : _currentTransaction.value.amount
+                                                .toString(),
                                         style: textStyle(hasFocus, _color),
                                         decoration: buildInputDecoration(
                                                 hasFocus, _color)
@@ -182,8 +200,9 @@ class _ManTransactionState extends State<ManTransaction> {
                                         ),
                                         maxLength: 10,
                                         validator: (val) {},
-                                        onChanged: (val) =>
-                                            setState(() => _amount = val));
+                                        onChanged: (val) => setState(() =>
+                                            _currentTransaction.value.amount =
+                                                double.parse(val)));
                                   }))
                                 ],
                               ),
@@ -199,7 +218,9 @@ class _ManTransactionState extends State<ManTransaction> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _type == 1 ? 'Payer' : 'Payee',
+                                    _currentTransaction.value.type == 1
+                                        ? 'Payer'
+                                        : 'Payee',
                                     style: TextStyle(
                                         color: Color(_color),
                                         fontWeight: FontWeight.w700),
@@ -211,12 +232,15 @@ class _ManTransactionState extends State<ManTransaction> {
                                         Focus.of(context);
                                     final bool hasFocus = focusNode.hasFocus;
                                     return TextFormField(
+                                        initialValue:
+                                            _currentTransaction.value.payee,
                                         style: textStyle(hasFocus, _color),
                                         decoration: buildInputDecoration(
                                             hasFocus, _color),
                                         validator: (val) {},
-                                        onChanged: (val) =>
-                                            setState(() => _payee = val));
+                                        onChanged: (val) => setState(() =>
+                                            _currentTransaction.value.payee =
+                                                val));
                                   }))
                                 ],
                               ),
@@ -245,7 +269,8 @@ class _ManTransactionState extends State<ManTransaction> {
                                     SizedBox(height: 10),
                                     InkWell(
                                       onTap: () async {
-                                        if (_type == 1) {
+                                        if (_currentTransaction.value.type ==
+                                            1) {
                                           _color = color1;
                                         } else {
                                           _color = color2;
@@ -256,118 +281,98 @@ class _ManTransactionState extends State<ManTransaction> {
 
                                         showDialog<String>(
                                             context: context,
-                                            builder: (BuildContext context) =>
-                                                AlertDialog(
-                                                  title: Text(
-                                                    'Choose Category',
-                                                    style:
-                                                        TextStyle(height: 1.5),
-                                                  ),
-                                                  content: Container(
-                                                      height: height * 0.5,
-                                                      width: height * 0.3,
-                                                      child: _type == 1
-                                                          ? ListView.builder(
-                                                              physics:
-                                                                  BouncingScrollPhysics(),
-                                                              itemCount:
-                                                                  expenseCategories
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                return ListTile(
-                                                                  title: Text(
-                                                                      expenseCategories
-                                                                          .keys
-                                                                          .toList()[index]),
-                                                                  contentPadding:
-                                                                      EdgeInsets.only(
-                                                                          left:
-                                                                              0.0,
-                                                                          right:
-                                                                              0.0),
-                                                                  leading:
-                                                                      CircleAvatar(
-                                                                    backgroundColor:
-                                                                        Color(
-                                                                            _color),
-                                                                    child: Icon(
-                                                                        expenseCategories
-                                                                            .values
-                                                                            .toList()[index],
-                                                                        color: Colors.white),
-                                                                  ),
-                                                                  onTap: () {
-                                                                    setState(
-                                                                        () {
-                                                                      _category = expenseCategories
-                                                                          .keys
-                                                                          .toList()[index];
-                                                                    });
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                  },
-                                                                );
-                                                              },
-                                                            )
-                                                          : ListView.builder(
-                                                              physics:
-                                                                  BouncingScrollPhysics(),
-                                                              itemCount:
-                                                                  incomeCategories
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                return ListTile(
-                                                                    title: Text(incomeCategories
-                                                                            .keys
-                                                                            .toList()[
-                                                                        index]),
-                                                                    contentPadding: EdgeInsets.only(
-                                                                        left:
-                                                                            0.0,
-                                                                        right:
-                                                                            0.0),
-                                                                    leading:
-                                                                        CircleAvatar(
-                                                                      backgroundColor:
-                                                                          Color(
-                                                                              _color),
-                                                                      child: Icon(
-                                                                          incomeCategories.values.toList()[
-                                                                              index],
-                                                                          color:
-                                                                              Colors.white),
-                                                                    ),
-                                                                    onTap: () {
-                                                                      setState(
-                                                                          () {
-                                                                        _category = incomeCategories
-                                                                            .keys
-                                                                            .toList()[index];
-                                                                      });
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                    });
-                                                              },
-                                                            )),
-                                                  actions: <Widget>[
-                                                    ElevatedButton(
-                                                        child: Text('Cancel',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white)),
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                                primary: Color(
-                                                                    _color)),
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                                context)),
-                                                  ],
-                                                ));
+                                            builder:
+                                                (BuildContext context) =>
+                                                    AlertDialog(
+                                                      title: Text(
+                                                        'Choose Category',
+                                                        style: TextStyle(
+                                                            height: 1.5),
+                                                      ),
+                                                      content: Container(
+                                                          height: height * 0.5,
+                                                          width: height * 0.3,
+                                                          child:
+                                                              _currentTransaction
+                                                                          .value
+                                                                          .type ==
+                                                                      1
+                                                                  ? ListView
+                                                                      .builder(
+                                                                      physics:
+                                                                          BouncingScrollPhysics(),
+                                                                      itemCount:
+                                                                          expenseCategories
+                                                                              .length,
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              index) {
+                                                                        return ListTile(
+                                                                          title: Text(expenseCategories
+                                                                              .keys
+                                                                              .toList()[index]),
+                                                                          contentPadding: EdgeInsets.only(
+                                                                              left: 0.0,
+                                                                              right: 0.0),
+                                                                          leading:
+                                                                              CircleAvatar(
+                                                                            backgroundColor:
+                                                                                Color(_color),
+                                                                            child:
+                                                                                Icon(expenseCategories.values.toList()[index], color: Colors.white),
+                                                                          ),
+                                                                          onTap:
+                                                                              () {
+                                                                            setState(() {
+                                                                              _currentTransaction.value.category = expenseCategories.keys.toList()[index];
+                                                                            });
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                        );
+                                                                      },
+                                                                    )
+                                                                  : ListView
+                                                                      .builder(
+                                                                      physics:
+                                                                          BouncingScrollPhysics(),
+                                                                      itemCount:
+                                                                          incomeCategories
+                                                                              .length,
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              index) {
+                                                                        return ListTile(
+                                                                            title:
+                                                                                Text(incomeCategories.keys.toList()[index]),
+                                                                            contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+                                                                            leading: CircleAvatar(
+                                                                              backgroundColor: Color(_color),
+                                                                              child: Icon(incomeCategories.values.toList()[index], color: Colors.white),
+                                                                            ),
+                                                                            onTap: () {
+                                                                              setState(() {
+                                                                                _currentTransaction.value.category = incomeCategories.keys.toList()[index];
+                                                                              });
+                                                                              Navigator.pop(context);
+                                                                            });
+                                                                      },
+                                                                    )),
+                                                      actions: <Widget>[
+                                                        ElevatedButton(
+                                                            child: Text(
+                                                                'Cancel',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white)),
+                                                            style: ElevatedButton
+                                                                .styleFrom(
+                                                                    primary: Color(
+                                                                        _color)),
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context)),
+                                                      ],
+                                                    ));
                                       },
                                       child: Container(
                                         height: 50,
@@ -381,16 +386,22 @@ class _ManTransactionState extends State<ManTransaction> {
                                           children: [
                                             SizedBox(width: 20),
                                             Icon(
-                                              _type == 1
-                                                  ? expenseCategories[_category]
-                                                  : incomeCategories[_category],
+                                              _currentTransaction.value.type ==
+                                                      1
+                                                  ? expenseCategories[
+                                                      _currentTransaction
+                                                          .value.category]
+                                                  : incomeCategories[
+                                                      _currentTransaction
+                                                          .value.category],
                                               color: Colors.white,
                                             ),
                                             SizedBox(width: 10),
                                             Text(
-                                              _type == 1
-                                                  ? '$_category'
-                                                  : '$_category',
+                                              _currentTransaction.value.type ==
+                                                      1
+                                                  ? '${_currentTransaction.value.category}'
+                                                  : '${_currentTransaction.value.category}',
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w700),
@@ -424,14 +435,18 @@ class _ManTransactionState extends State<ManTransaction> {
                                         final DateTime? selectedDate =
                                             await showDatePicker(
                                           context: context,
-                                          initialDate: _dateTime,
+                                          initialDate: _currentTransaction
+                                              .value.dateTime,
                                           firstDate: DateTime(0),
                                           lastDate: DateTime.now(),
                                         );
                                         if (selectedDate != null &&
-                                            selectedDate != _dateTime)
+                                            selectedDate !=
+                                                _currentTransaction
+                                                    .value.dateTime)
                                           setState(() {
-                                            _dateTime = selectedDate;
+                                            _currentTransaction.value.dateTime =
+                                                selectedDate;
                                           });
                                       },
                                       child: Container(
@@ -445,7 +460,7 @@ class _ManTransactionState extends State<ManTransaction> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              '${_dateTime.day} ${months[_dateTime.month - 1]} ${_dateTime.year}',
+                                              '${_currentTransaction.value.dateTime.day} ${months[_currentTransaction.value.dateTime.month - 1]} ${_currentTransaction.value.dateTime.year}',
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: Colors.white,
@@ -484,12 +499,14 @@ class _ManTransactionState extends State<ManTransaction> {
                                 final FocusNode focusNode = Focus.of(context);
                                 final bool hasFocus = focusNode.hasFocus;
                                 return TextFormField(
+                                    initialValue:
+                                        _currentTransaction.value.note,
                                     style: textStyle(hasFocus, _color),
                                     decoration:
                                         buildInputDecoration(hasFocus, _color),
                                     validator: (val) {},
-                                    onChanged: (val) =>
-                                        setState(() => _note = val));
+                                    onChanged: (val) => setState(() =>
+                                        _currentTransaction.value.note = val));
                               }))
                             ],
                           ),
@@ -507,18 +524,18 @@ class _ManTransactionState extends State<ManTransaction> {
       child: InkWell(
         onTap: () {
           setState(() {
-            _type = type;
-            _category = 'Other';
+            _currentTransaction.value.type = type;
+            _currentTransaction.value.category = 'Other';
           });
         },
         child: Container(
           height: 60,
           decoration: BoxDecoration(
               color: type == 0
-                  ? _type == 0
+                  ? _currentTransaction.value.type == 0
                       ? Color(color)
                       : Colors.grey
-                  : _type == 1
+                  : _currentTransaction.value.type == 1
                       ? Color(color)
                       : Colors.grey,
               borderRadius: BorderRadius.circular(8)),
@@ -556,6 +573,21 @@ class _ManTransactionState extends State<ManTransaction> {
 
     final box = Boxes.getTransactions();
     box.add(transaction);
+  }
+
+  Future editTransaction(String payee, int account, String category,
+      String note, int type, double amount, DateTime dateTime) async {
+    final transaction = Transaction()
+      ..payee = payee
+      ..account = account
+      ..category = category
+      ..note = note
+      ..type = type
+      ..amount = amount
+      ..dateTime = dateTime;
+
+    final box = Boxes.getTransactions();
+    box.putAt(_currentTransaction.value.key, transaction);
   }
 
   AlertDialog deleteDialog(int key) {
