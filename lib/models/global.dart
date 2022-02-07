@@ -10,6 +10,15 @@ ValueNotifier<Account> currentAccount = ValueNotifier(Account()
   ..expenses = 0.0
   ..goalLimit = 0.0);
 
+ValueNotifier<Transaction> currentTransaction = ValueNotifier(Transaction()
+  ..account = 0
+  ..amount = 0.0
+  ..category = 'Other'
+  ..dateTime = DateTime.now()
+  ..note = ''
+  ..payee = ''
+  ..type = 1);
+
 ValueNotifier currentCurrency = ValueNotifier('AED');
 ValueNotifier currentDate =
     ValueNotifier([DateTime.now().month, DateTime.now().year]);
