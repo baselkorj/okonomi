@@ -23,19 +23,23 @@ GlobalKey<FormState> _transactionForm = GlobalKey<FormState>();
 class _ManTransactionState extends State<ManTransaction> {
   int _color = color1;
   var _currentTransaction = ValueNotifier(Transaction());
+  bool _updated = false;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.currentState == 1) {
-      _currentTransaction = currentTransaction;
-    } else {
-      _currentTransaction.value.account = 0;
-      _currentTransaction.value.amount = 0.0;
-      _currentTransaction.value.category = 'Other';
-      _currentTransaction.value.dateTime = DateTime.now();
-      _currentTransaction.value.note = '';
-      _currentTransaction.value.payee = '';
-      _currentTransaction.value.type = 1;
+    if (!_updated) {
+      if (widget.currentState == 1) {
+        _currentTransaction = currentTransaction;
+      } else {
+        _currentTransaction.value.account = 0;
+        _currentTransaction.value.amount = 0.0;
+        _currentTransaction.value.category = 'Other';
+        _currentTransaction.value.dateTime = DateTime.now();
+        _currentTransaction.value.note = '';
+        _currentTransaction.value.payee = '';
+        _currentTransaction.value.type = 1;
+      }
+      _updated = true;
     }
 
     if (_currentTransaction.value.type == 1) {
@@ -168,41 +172,41 @@ class _ManTransactionState extends State<ManTransaction> {
                                         Focus.of(context);
                                     final bool hasFocus = focusNode.hasFocus;
                                     return TextFormField(
-                                        autofocus: true,
-                                        initialValue: widget.currentState == 0
-                                            ? ''
-                                            : _currentTransaction.value.amount
-                                                .toString(),
-                                        style: textStyle(hasFocus, _color),
-                                        decoration: buildInputDecoration(
-                                                hasFocus, _color)
-                                            .copyWith(
-                                                prefixText:
-                                                    '${currentAccount.value.currency}  '),
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r"[0-9.]")),
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            try {
-                                              final text = newValue.text;
-                                              if (text.isNotEmpty)
-                                                double.parse(text);
-                                              return newValue;
-                                            } catch (e) {}
-                                            return oldValue;
-                                          }),
-                                        ],
-                                        keyboardType:
-                                            TextInputType.numberWithOptions(
-                                          decimal: true,
-                                          signed: false,
-                                        ),
-                                        maxLength: 10,
-                                        validator: (val) {},
-                                        onChanged: (val) => setState(() =>
-                                            _currentTransaction.value.amount =
-                                                double.parse(val)));
+                                      autofocus: true,
+                                      initialValue: widget.currentState == 0
+                                          ? ''
+                                          : _currentTransaction.value.amount
+                                              .toString(),
+                                      style: textStyle(hasFocus, _color),
+                                      decoration: buildInputDecoration(
+                                              hasFocus, _color)
+                                          .copyWith(
+                                              prefixText:
+                                                  '${currentAccount.value.currency}  '),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                            RegExp(r"[0-9.]")),
+                                        TextInputFormatter.withFunction(
+                                            (oldValue, newValue) {
+                                          try {
+                                            final text = newValue.text;
+                                            if (text.isNotEmpty)
+                                              double.parse(text);
+                                            return newValue;
+                                          } catch (e) {}
+                                          return oldValue;
+                                        }),
+                                      ],
+                                      keyboardType:
+                                          TextInputType.numberWithOptions(
+                                        decimal: true,
+                                        signed: false,
+                                      ),
+                                      maxLength: 10,
+                                      validator: (val) {},
+                                      onChanged: (val) => _currentTransaction
+                                          .value.amount = double.parse(val),
+                                    );
                                   }))
                                 ],
                               ),
@@ -238,9 +242,8 @@ class _ManTransactionState extends State<ManTransaction> {
                                         decoration: buildInputDecoration(
                                             hasFocus, _color),
                                         validator: (val) {},
-                                        onChanged: (val) => setState(() =>
-                                            _currentTransaction.value.payee =
-                                                val));
+                                        onChanged: (val) => _currentTransaction
+                                            .value.payee = val);
                                   }))
                                 ],
                               ),
