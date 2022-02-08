@@ -29,6 +29,9 @@ class _HomeState extends State<Home> {
   int _selected = 0;
   bool _updated = false;
   int _key = 0;
+  double _income = 0;
+  double _expense = 0;
+  double _total = 0;
 
   Map _currentDayMap = {};
 
@@ -37,9 +40,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double _income = 0;
-    double _expense = 0;
-    double _total = 0;
+    double screenWidth = MediaQuery.of(context).size.width;
 
     int isExpense(double amount) {
       _total -= amount;
@@ -52,8 +53,6 @@ class _HomeState extends State<Home> {
       _income += amount;
       return 0;
     }
-
-    double screenWidth = MediaQuery.of(context).size.width;
 
     return ValueListenableBuilder<Box<Account>>(
         valueListenable: Boxes.getAccounts().listenable(),
@@ -246,6 +245,10 @@ class _HomeState extends State<Home> {
                             valueListenable:
                                 Boxes.getTransactions().listenable(),
                             builder: (context, box, _) {
+                              _income = 0;
+                              _expense = 0;
+                              _total = 0;
+
                               final transactions = box.values
                                   .where((transaction) =>
                                       transaction.account ==
