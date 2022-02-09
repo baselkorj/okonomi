@@ -90,23 +90,7 @@ class _ManTransactionState extends State<ManTransaction> {
                   child: Icon(Icons.save),
                   onPressed: () async {
                     if (_transactionForm.currentState!.validate()) {
-                      widget.currentState == 0
-                          ? addTransaction(
-                              _currentTransaction.value.payee,
-                              currentAccount.value.key,
-                              _currentTransaction.value.category,
-                              _currentTransaction.value.note,
-                              _currentTransaction.value.type,
-                              _currentTransaction.value.amount,
-                              _currentTransaction.value.dateTime)
-                          : editTransaction(
-                              _currentTransaction.value.payee,
-                              currentAccount.value.key,
-                              _currentTransaction.value.category,
-                              _currentTransaction.value.note,
-                              _currentTransaction.value.type,
-                              _currentTransaction.value.amount,
-                              _currentTransaction.value.dateTime);
+                      updateTransaction();
                       updateAccount();
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => Home()));
@@ -570,34 +554,21 @@ class _ManTransactionState extends State<ManTransaction> {
     );
   }
 
-  Future addTransaction(String payee, int account, String category, String note,
-      int type, double amount, DateTime dateTime) async {
+  Future updateTransaction() async {
     final transaction = Transaction()
-      ..payee = payee
-      ..account = account
-      ..category = category
-      ..note = note
-      ..type = type
-      ..amount = amount
-      ..dateTime = dateTime;
+      ..payee = _currentTransaction.value.payee
+      ..account = currentAccount.value.key
+      ..category = _currentTransaction.value.category
+      ..note = _currentTransaction.value.note
+      ..type = _currentTransaction.value.type
+      ..amount = _currentTransaction.value.amount
+      ..dateTime = _currentTransaction.value.dateTime;
 
     final box = Boxes.getTransactions();
-    box.add(transaction);
-  }
 
-  Future editTransaction(String payee, int account, String category,
-      String note, int type, double amount, DateTime dateTime) async {
-    final transaction = Transaction()
-      ..payee = payee
-      ..account = account
-      ..category = category
-      ..note = note
-      ..type = type
-      ..amount = amount
-      ..dateTime = dateTime;
-
-    final box = Boxes.getTransactions();
-    box.putAt(currentTransaction.value.key, transaction);
+    widget.currentState == 0
+        ? box.add(transaction)
+        : box.putAt(currentTransaction.value.key, transaction);
   }
 
   Future updateAccount() async {
