@@ -29,7 +29,13 @@ class _ManTransactionState extends State<ManTransaction> {
   Widget build(BuildContext context) {
     if (!_updated) {
       if (widget.currentState == 1) {
-        _currentTransaction = currentTransaction;
+        _currentTransaction.value.account = currentTransaction.value.account;
+        _currentTransaction.value.amount = currentTransaction.value.amount;
+        _currentTransaction.value.category = currentTransaction.value.category;
+        _currentTransaction.value.dateTime = currentTransaction.value.dateTime;
+        _currentTransaction.value.note = currentTransaction.value.note;
+        _currentTransaction.value.payee = currentTransaction.value.payee;
+        _currentTransaction.value.type = currentTransaction.value.type;
       } else {
         _currentTransaction.value.account = 0;
         _currentTransaction.value.amount = 0.0;
@@ -71,8 +77,8 @@ class _ManTransactionState extends State<ManTransaction> {
                           onPressed: () {
                             showDialog<String>(
                                 context: context,
-                                builder: (BuildContext context) => deleteDialog(
-                                    _currentTransaction.value.key));
+                                builder: (BuildContext context) =>
+                                    deleteDialog(currentTransaction.value.key));
                           },
                           icon: Icon(Icons.delete, color: Colors.white))
                 ],
@@ -101,6 +107,7 @@ class _ManTransactionState extends State<ManTransaction> {
                               _currentTransaction.value.type,
                               _currentTransaction.value.amount,
                               _currentTransaction.value.dateTime);
+                      updateAccount();
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => Home()));
                     } else {
@@ -590,7 +597,35 @@ class _ManTransactionState extends State<ManTransaction> {
       ..dateTime = dateTime;
 
     final box = Boxes.getTransactions();
-    box.putAt(_currentTransaction.value.key, transaction);
+    box.putAt(currentTransaction.value.key, transaction);
+  }
+
+  Future updateAccount() async {
+    if (widget.currentState == 1) {
+      if (currentTransaction.value.type == 1) {
+        currentAccount.value.expenses -= currentTransaction.value.amount;
+      } else {
+        currentAccount.value.income -= currentTransaction.value.amount;
+      }
+    }
+
+    if (_currentTransaction.value.type == 1) {
+      currentAccount.value.expenses += _currentTransaction.value.amount;
+    } else {
+      currentAccount.value.income += _currentTransaction.value.amount;
+    }
+
+    final account = Account()
+      ..name = currentAccount.value.name
+      ..currency = currentAccount.value.currency
+      ..color = currentAccount.value.color
+      ..openAmount = currentAccount.value.openAmount
+      ..income = currentAccount.value.income
+      ..expenses = currentAccount.value.expenses
+      ..goalLimit = currentAccount.value.goalLimit;
+
+    final box = Boxes.getAccounts();
+    box.putAt(currentAccount.value.key, account);
   }
 
   AlertDialog deleteDialog(int key) {
