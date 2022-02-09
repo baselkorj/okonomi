@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/models/boxes.dart';
@@ -39,8 +38,10 @@ class _ManAccountState extends State<ManAccount> {
         _currentAccount.value.income = 0.0;
         _currentAccount.value.expenses = 0.0;
         _currentAccount.value.goalLimit = 0.0;
+        currentCurrency.value = 'AED';
       } else {
         _currentAccount = currentAccount;
+        currentCurrency.value = currentAccount.value.currency;
         _currentColor = _currentAccount.value.color;
       }
       _updated = true;
@@ -77,19 +78,7 @@ class _ManAccountState extends State<ManAccount> {
             child: Icon(Icons.save, color: Colors.white),
             onPressed: () {
               if (_accountForm.currentState!.validate()) {
-                widget.currentState == 0
-                    ? addAccount(
-                        _currentAccount.value.name,
-                        _currentAccount.value.currency,
-                        _currentColor,
-                        _currentAccount.value.openAmount,
-                        _currentAccount.value.goalLimit)
-                    : editAccount(
-                        _currentAccount.value.name,
-                        _currentAccount.value.currency,
-                        _currentColor,
-                        _currentAccount.value.openAmount,
-                        _currentAccount.value.goalLimit);
+                updateAccount();
                 if (widget.isUrgent != true) {
                   Navigator.pop(context);
                 }
@@ -454,34 +443,20 @@ class _ManAccountState extends State<ManAccount> {
                 : Container()));
   }
 
-  Future addAccount(String name, String currency, int color, double openAmount,
-      double goalLimit) async {
+  Future updateAccount() async {
     final account = Account()
-      ..name = name
-      ..currency = currency
-      ..color = color
-      ..openAmount = openAmount
+      ..name = _currentAccount.value.name
+      ..currency = _currentAccount.value.currency
+      ..color = _currentColor
+      ..openAmount = _currentAccount.value.openAmount
       ..income = 0.0
       ..expenses = 0.0
-      ..goalLimit = goalLimit;
+      ..goalLimit = _currentAccount.value.goalLimit;
 
     final box = Boxes.getAccounts();
-    box.add(account);
-  }
-
-  Future editAccount(String name, String currency, int color, double openAmount,
-      double goalLimit) async {
-    final account = Account()
-      ..name = name
-      ..currency = currency
-      ..color = color
-      ..openAmount = openAmount
-      ..income = 0.0
-      ..expenses = 0.0
-      ..goalLimit = goalLimit;
-
-    final box = Boxes.getAccounts();
-    box.putAt(_currentAccount.value.key, account);
+    widget.currentState == 0
+        ? box.add(account)
+        : box.putAt(_currentAccount.value.key, account);
   }
 
   Future deleteAccount(int key) async {
