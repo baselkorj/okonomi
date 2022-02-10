@@ -3,7 +3,7 @@ import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:intl/intl.dart';
 import 'package:okonomi/models/style.dart';
-import 'package:okonomi/screens/man_transaction.dart';
+import 'package:okonomi/screens/transaction_manager/man_transaction.dart';
 
 class TransactionsList extends StatelessWidget {
   final currentDayMap;

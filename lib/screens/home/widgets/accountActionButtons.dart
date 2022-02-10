@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:okonomi/models/style.dart';
-import 'package:okonomi/screens/export.dart';
-import 'package:okonomi/screens/man_transaction.dart';
+import 'package:okonomi/screens/transaction_manager/export.dart';
+import 'package:okonomi/screens/transaction_manager/man_transaction.dart';
 
 class AccountActionButtons extends StatelessWidget {
   const AccountActionButtons({
