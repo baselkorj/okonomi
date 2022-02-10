@@ -10,6 +10,7 @@ import 'package:okonomi/screens/home/widgets/homeBar.dart';
 import 'package:okonomi/screens/home/widgets/noInstance.dart';
 import 'package:okonomi/screens/home/widgets/transactionsList.dart';
 import 'package:okonomi/models/global.dart';
+import 'package:okonomi/screens/settings/settings.dart';
 
 class Home extends StatefulWidget {
   final accounts;
@@ -220,7 +221,7 @@ class _HomeState extends State<Home> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        ManAccount()));
+                                                        Settings()));
                                           },
                                           leading:
                                               Icon(Icons.settings, size: 32),
