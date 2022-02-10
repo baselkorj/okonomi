@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/global.dart';
+import 'package:okonomi/screens/home/widgets/noInstance.dart';
 
 class CurrencyChooser extends StatefulWidget {
   const CurrencyChooser({Key? key}) : super(key: key);
@@ -42,43 +43,45 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
           alignment: FractionalOffset.topCenter,
           child: Container(
             width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: _currentList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          children: [
-                            ListTile(
-                              title: Text(
-                                  '${_currentList.values.toList()[index][0]}'),
-                              subtitle:
-                                  Text('${_currentList.keys.toList()[index]}'),
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                child: Text(
-                                  '${_currentList.values.toList()[index][1]}',
-                                  style: TextStyle(fontSize: 32),
-                                ),
-                              ),
-                              onTap: () {
-                                currentCurrency.value =
-                                    _currentList.keys.toList()[index];
-                                Navigator.pop(context);
-                              },
-                            ),
-                            Divider(),
-                          ],
-                        );
-                      }),
-                ),
-              ),
-            ),
+            child: _currentList.length == 0
+                ? NoInstance(object: 'Currencies')
+                : Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: _currentList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Column(
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                        '${_currentList.values.toList()[index][0]}'),
+                                    subtitle: Text(
+                                        '${_currentList.keys.toList()[index]}'),
+                                    leading: CircleAvatar(
+                                      backgroundColor: Colors.transparent,
+                                      child: Text(
+                                        '${_currentList.values.toList()[index][1]}',
+                                        style: TextStyle(fontSize: 32),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      currentCurrency.value =
+                                          _currentList.keys.toList()[index];
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  Divider(),
+                                ],
+                              );
+                            }),
+                      ),
+                    ),
+                  ),
           ),
         ));
   }
