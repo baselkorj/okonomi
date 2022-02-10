@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class NoInstance extends StatelessWidget {
+  final object;
+
+  NoInstance({this.object});
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -14,11 +18,9 @@ class NoInstance extends StatelessWidget {
           ),
           SizedBox(height: 15),
           Text(
-            'No transactions found.',
+            'No $object found.',
             style: TextStyle(color: Colors.black45),
           ),
-          Text('Add a transaction to get started.',
-              style: TextStyle(color: Colors.black45))
         ],
       )),
     );
