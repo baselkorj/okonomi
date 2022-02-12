@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:okonomi/models/db.dart';
+import 'package:okonomi/models/global.dart';
 import 'package:okonomi/screens/home/home.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -44,10 +45,16 @@ class _RestartWidgetState extends State<RestartWidget> {
   Widget build(BuildContext context) {
     return KeyedSubtree(
       key: key,
-      child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Okonomi Finance Manager',
-          home: Home()),
+      child: ValueListenableBuilder(
+          valueListenable: isDark,
+          builder: (context, value, _) {
+            return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: isDark.value ? ThemeData.dark() : ThemeData.light(),
+                darkTheme: isDark.value ? ThemeData.dark() : ThemeData.light(),
+                title: 'Okonomi Finance Manager',
+                home: Home());
+          }),
     );
   }
 }

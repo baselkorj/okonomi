@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:okonomi/models/global.dart';
 
 class NoInstance extends StatelessWidget {
   final object;
@@ -14,12 +15,13 @@ class NoInstance extends StatelessWidget {
           Icon(
             Icons.search_off_rounded,
             size: 64,
-            color: Colors.black45,
+            color: isDark.value ? Colors.white54 : Colors.black45,
           ),
           SizedBox(height: 15),
           Text(
             'No $object found.',
-            style: TextStyle(color: Colors.black45),
+            style: TextStyle(
+                color: isDark.value ? Colors.white54 : Colors.black45),
           ),
         ],
       )),
