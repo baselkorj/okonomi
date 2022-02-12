@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/lists.dart';
+import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/home/widgets/dateDialog.dart';
 
 class HomeBar extends StatelessWidget with PreferredSizeWidget {
@@ -23,9 +24,7 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
     return AppBar(
       systemOverlayStyle:
           isDark.value ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-      iconTheme: isDark.value
-          ? IconThemeData(color: Colors.white54)
-          : IconThemeData(color: Colors.black87),
+      iconTheme: IconThemeData(color: Color(color9)),
       backgroundColor: isDark.value ? Colors.grey[800] : Colors.white,
       title: InkWell(
         child: Column(
@@ -40,9 +39,7 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
             SizedBox(height: 1),
             Text(
               '${months[currentMonth]} ' '$currentYear',
-              style: TextStyle(
-                  color: isDark.value ? Colors.white54 : Colors.black54,
-                  fontSize: 14),
+              style: TextStyle(color: Color(color8), fontSize: 14),
             )
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:okonomi/models/db.dart';
 import 'package:okonomi/models/global.dart';
+import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/home/home.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -48,6 +49,7 @@ class _RestartWidgetState extends State<RestartWidget> {
       child: ValueListenableBuilder(
           valueListenable: isDark,
           builder: (context, value, _) {
+            updateStyle();
             return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 theme: isDark.value ? ThemeData.dark() : ThemeData.light(),

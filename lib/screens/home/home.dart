@@ -212,9 +212,13 @@ class _HomeState extends State<Home> {
                                                         ManAccount(
                                                             currentState: 0)));
                                           },
-                                          leading:
-                                              Icon(Icons.add_circle, size: 32),
-                                          title: Text('Add an Account')),
+                                          leading: Icon(Icons.add_circle,
+                                              size: 32, color: Color(color9)),
+                                          title: Text(
+                                            'Add an Account',
+                                            style:
+                                                TextStyle(color: Color(color9)),
+                                          )),
                                       ListTile(
                                           onTap: () {
                                             Navigator.push(
@@ -223,9 +227,13 @@ class _HomeState extends State<Home> {
                                                     builder: (context) =>
                                                         Settings()));
                                           },
-                                          leading:
-                                              Icon(Icons.settings, size: 32),
-                                          title: Text('Settings')),
+                                          leading: Icon(Icons.settings,
+                                              size: 32, color: Color(color9)),
+                                          title: Text(
+                                            'Settings',
+                                            style:
+                                                TextStyle(color: Color(color9)),
+                                          )),
                                     ],
                                   )))),
                         ],

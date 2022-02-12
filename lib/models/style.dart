@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:okonomi/models/global.dart';
 
 // Application Colors
 int color1 = 0xFFCB576C;
@@ -8,6 +9,18 @@ int color4 = 0xFF8BBC25;
 int color5 = 0xFFFFA057;
 int color6 = 0xFF57CBB6;
 int color7 = 0xFF595DA6;
+int color8 = 0xFFA0A0A0;
+int color9 = 0xFFA8A8A8;
+
+void updateStyle() {
+  if (isDark.value) {
+    color8 = 0xFFA0A0A0;
+    color9 = 0xFFA8A8A8;
+  } else {
+    color8 = 0xFF898989;
+    color9 = 0xFF222222;
+  }
+}
 
 // Text Input
 InputDecoration buildInputDecoration(bool hasFocus, int color) {
