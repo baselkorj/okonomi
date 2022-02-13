@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:okonomi/models/style.dart';
 
 Container categoryBar() {
-  List categories = [1, 2, 3, 4];
+  List categories = [3, 1, 4, 4, 6, 2, 1];
   List<Widget> barContents = [];
   List colors = [color1, color2, color3, color4, color5, color6, color7];
 
@@ -20,9 +20,12 @@ Container categoryBar() {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(5.0),
     ),
-    child: Row(
-      mainAxisSize: MainAxisSize.max,
-      children: barContents,
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(5.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: barContents,
+      ),
     ),
   );
 }
