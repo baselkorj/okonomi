@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
+import 'package:okonomi/screens/account_manager/account_overview.dart';
 import 'package:okonomi/screens/home/widgets/dateDialog.dart';
 
 class HomeBar extends StatelessWidget with PreferredSizeWidget {
@@ -45,7 +46,6 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
         ),
       ),
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(Icons.sort)),
         IconButton(
             onPressed: () {
               showDialog(
@@ -59,6 +59,12 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
               );
             },
             icon: Icon(Icons.event)),
+        IconButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AccountOverview()));
+            },
+            icon: Icon(Icons.info)),
       ],
     );
   }
