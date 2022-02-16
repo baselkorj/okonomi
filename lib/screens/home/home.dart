@@ -258,10 +258,13 @@ class _HomeState extends State<Home> {
                               _expense = 0;
                               _total = 0;
 
-                              final transactions = box.values
+                              currentTransactions = box.values
                                   .where((transaction) =>
                                       transaction.account ==
                                       currentAccount.value.key)
+                                  .toList();
+
+                              final filteredTransactions = currentTransactions
                                   .where((transaction) =>
                                       transaction.dateTime.year == _currentYear)
                                   .where((transaction) =>
@@ -269,19 +272,23 @@ class _HomeState extends State<Home> {
                                       _currentMonth)
                                   .toList();
 
-                              if (transactions.isNotEmpty) {
+                              if (filteredTransactions.isNotEmpty) {
                                 // Calculate Transactions
-                                for (int i = 0; i < transactions.length; i++) {
-                                  transactions[i].type == 1
-                                      ? isExpense(transactions[i].amount)
-                                      : isIncome(transactions[i].amount);
+                                for (int i = 0;
+                                    i < filteredTransactions.length;
+                                    i++) {
+                                  filteredTransactions[i].type == 1
+                                      ? isExpense(
+                                          filteredTransactions[i].amount)
+                                      : isIncome(
+                                          filteredTransactions[i].amount);
                                 }
 
                                 // Create Day Map
                                 _currentDayMap.clear();
 
                                 for (int m = 31; m >= 0; m--) {
-                                  final dailyTransactions = transactions
+                                  final dailyTransactions = filteredTransactions
                                       .where((transaction) =>
                                           transaction.dateTime.day == m)
                                       .toList();
