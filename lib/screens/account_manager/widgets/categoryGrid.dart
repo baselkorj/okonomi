@@ -22,7 +22,9 @@ class CategoryGrid extends StatelessWidget {
           ),
           SizedBox(width: 10.0),
           Text(
-              '${categoryAmount.keys.toList()[i]} — ${categoryAmount.values.toList()[i]}${currentAccount.value.currency}'),
+            '${categoryAmount.keys.toList()[i]} — ${categoryAmount.values.toList()[i]}${currentAccount.value.currency}',
+            style: TextStyle(color: Color(color8)),
+          ),
           SizedBox(width: 20.0)
         ],
       ));
