@@ -265,6 +265,7 @@ class _HomeState extends State<Home> {
                                   .toList();
 
                               final filteredTransactions = currentTransactions
+                                  .reversed
                                   .where((transaction) =>
                                       transaction.dateTime.year == _currentYear)
                                   .where((transaction) =>

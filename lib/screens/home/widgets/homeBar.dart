@@ -5,6 +5,7 @@ import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/account_manager/account_overview.dart';
 import 'package:okonomi/screens/home/widgets/dateDialog.dart';
+import 'package:okonomi/screens/home/widgets/sortDialog.dart';
 
 class HomeBar extends StatelessWidget with PreferredSizeWidget {
   final accountName;
@@ -46,6 +47,16 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
         ),
       ),
       actions: [
+        IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SortDialog();
+                },
+              );
+            },
+            icon: Icon(Icons.sort)),
         IconButton(
             onPressed: () {
               showDialog(
