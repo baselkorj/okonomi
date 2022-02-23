@@ -13,9 +13,6 @@ import 'package:okonomi/models/global.dart';
 import 'package:okonomi/screens/settings/settings.dart';
 
 class Home extends StatefulWidget {
-  final accounts;
-  Home({this.accounts});
-
   @override
   _HomeState createState() => _HomeState();
 }
@@ -60,6 +57,8 @@ class _HomeState extends State<Home> {
         builder: (context, box, _) {
           final accounts = box.values.toList().cast<Account>();
 
+          accounts.length == 1 ? isLastAccount = true : isLastAccount = false;
+
           if (accounts.isEmpty) {
             return ManAccount(currentState: 0, isUrgent: true);
           } else {
@@ -99,102 +98,88 @@ class _HomeState extends State<Home> {
                                     color: Color(currentAccount.value.color),
                                     fontSize: 32)),
                           )),
-                          Container(
-                            child: Expanded(
-                              child: accounts.isEmpty
-                                  ? NoInstance()
-                                  : ListView.builder(
-                                      physics: BouncingScrollPhysics(),
-                                      itemCount: accounts.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        final account = accounts[index];
+                          Expanded(
+                            child: ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                itemCount: accounts.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final account = accounts[index];
 
-                                        return Padding(
-                                          padding: EdgeInsets.only(
-                                              left: 10, right: 10, top: 10),
-                                          child: InkWell(
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 10, right: 10, top: 10),
+                                    child: InkWell(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      onTap: () {
+                                        setState(() {
+                                          _selected = index;
+                                          _key = accounts[_selected].key;
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(10)),
-                                            onTap: () {
-                                              setState(() {
-                                                _selected = index;
-                                                _key = accounts[_selected].key;
-                                              });
-                                              Navigator.pop(context);
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.all(5),
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                  color: accounts[index].key ==
-                                                          _key
-                                                      ? Color(accounts[index]
-                                                              .color)
-                                                          .withAlpha(55)
-                                                      : Colors.transparent),
-                                              child: Column(
-                                                children: [
-                                                  ListTile(
-                                                    title: Padding(
-                                                      padding: EdgeInsets.only(
-                                                          left: 15),
-                                                      child: Text(
-                                                        '${account.name}',
-                                                        overflow:
-                                                            TextOverflow.fade,
-                                                        softWrap: false,
-                                                        style: TextStyle(
-                                                          color: Color(
-                                                              accounts[index]
-                                                                  .color),
-                                                          fontSize: 16,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    leading: CircleAvatar(
-                                                        backgroundColor: Color(
-                                                            account.color)),
-                                                    trailing: InkWell(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      child: Padding(
-                                                        padding:
-                                                            EdgeInsets.all(5),
-                                                        child:
-                                                            _selected == index
-                                                                ? Icon(
-                                                                    Icons.edit,
-                                                                    color: Color(
-                                                                        account
-                                                                            .color),
-                                                                  )
-                                                                : Container(
-                                                                    height: 0,
-                                                                    width: 0,
-                                                                  ),
-                                                      ),
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    ManAccount(
-                                                                        currentState:
-                                                                            1)));
-                                                      },
-                                                    ),
+                                            color: accounts[index].key == _key
+                                                ? Color(accounts[index].color)
+                                                    .withAlpha(55)
+                                                : Colors.transparent),
+                                        child: Column(
+                                          children: [
+                                            ListTile(
+                                              title: Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 15),
+                                                child: Text(
+                                                  '${account.name}',
+                                                  overflow: TextOverflow.fade,
+                                                  softWrap: false,
+                                                  style: TextStyle(
+                                                    color: Color(
+                                                        accounts[index].color),
+                                                    fontSize: 16,
                                                   ),
-                                                ],
+                                                ),
+                                              ),
+                                              leading: CircleAvatar(
+                                                  backgroundColor:
+                                                      Color(account.color)),
+                                              trailing: InkWell(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(5),
+                                                  child: _selected == index
+                                                      ? Icon(
+                                                          Icons.edit,
+                                                          color: Color(
+                                                              account.color),
+                                                        )
+                                                      : Container(
+                                                          height: 0,
+                                                          width: 0,
+                                                        ),
+                                                ),
+                                                onTap: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ManAccount(
+                                                                  currentState:
+                                                                      1)));
+                                                },
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }),
-                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
                           ),
                           Container(
                               child: Align(

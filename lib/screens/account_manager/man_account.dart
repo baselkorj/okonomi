@@ -475,6 +475,14 @@ class _ManAccountState extends State<ManAccount> {
     // Delete the Account
     accounts.delete(key);
 
+    currentAccount.value.name = "";
+    currentAccount.value.currency = 'AED';
+    currentAccount.value.color = 0xFFCB576C;
+    currentAccount.value.openAmount = 0.0;
+    currentAccount.value.income = 0.0;
+    currentAccount.value.expenses = 0.0;
+    currentAccount.value.goalLimit = 0.0;
+
     RestartWidget.restartApp(context);
   }
 }

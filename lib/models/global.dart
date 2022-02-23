@@ -26,3 +26,5 @@ ValueNotifier currentDate =
     ValueNotifier([DateTime.now().month, DateTime.now().year]);
 
 ValueNotifier isDark = ValueNotifier(false);
+
+bool isLastAccount = false;
