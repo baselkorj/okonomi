@@ -38,8 +38,6 @@ class AccountOverview extends StatelessWidget {
       }
     }
 
-    print(_expenseCategories);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('${currentAccount.value.name} Account Overview'),
