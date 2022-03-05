@@ -98,6 +98,7 @@ class _HomeState extends State<Home> {
                                     color: Color(currentAccount.value.color),
                                     fontSize: 32)),
                           )),
+                          SizedBox(height: 15),
                           Expanded(
                             child: ListView.builder(
                                 physics: BouncingScrollPhysics(),
