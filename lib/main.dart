@@ -4,6 +4,7 @@ import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/home/home.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:okonomi/screens/search/search_form.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +56,7 @@ class _RestartWidgetState extends State<RestartWidget> {
                 theme: isDark.value ? ThemeData.dark() : ThemeData.light(),
                 darkTheme: isDark.value ? ThemeData.dark() : ThemeData.light(),
                 title: 'Okonomi Finance Manager',
-                home: Home());
+                home: SearchForm());
           }),
     );
   }
