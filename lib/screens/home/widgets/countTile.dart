@@ -11,36 +11,32 @@ class CountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: Offset(0, 2), // changes position of shadow
+        child: Card(
+            color: Color(color),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w700),
                   ),
+                  SizedBox(height: 15),
+                  Text(
+                    '$amount',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                    ),
+                  ),
+                  SizedBox(height: 10)
                 ],
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: Color(color)),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  title,
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 15),
-                Text(
-                  '$amount',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                  ),
-                ),
-                SizedBox(height: 10)
-              ],
+              ),
             )));
   }
 }

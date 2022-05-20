@@ -531,10 +531,10 @@ class _ManTransactionState extends State<ManTransaction> {
               color: type == 0
                   ? _currentTransaction.value.type == 0
                       ? Color(color)
-                      : Colors.grey
+                      : Color(color10)
                   : _currentTransaction.value.type == 1
                       ? Color(color)
-                      : Colors.grey,
+                      : Color(color10),
               borderRadius: BorderRadius.circular(8)),
           child: Row(
             children: [

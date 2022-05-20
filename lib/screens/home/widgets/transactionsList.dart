@@ -42,19 +42,19 @@ class TransactionsList extends StatelessWidget {
                             children: [
                               Text('${months[currentMonth]} $_thisDay',
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.black54)),
+                                      fontSize: 12, color: Color(color8))),
                               Text('${dateIndent(_thisDay)}',
                                   style: TextStyle(
-                                      fontSize: 8, color: Colors.black54)),
+                                      fontSize: 8, color: Color(color8))),
                               Text(
                                   ' | ${DateFormat('E').format(currentDayMap[_thisDay][0].dateTime)}',
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.black54)),
+                                      fontSize: 12, color: Color(color8))),
                             ],
                           ),
                           Text('Total: 15325',
                               style: TextStyle(
-                                  fontSize: 12, color: Colors.black54)),
+                                  fontSize: 12, color: Color(color8))),
                         ],
                       )),
                   Divider(

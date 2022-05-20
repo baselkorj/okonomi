@@ -297,29 +297,25 @@ class _HomeState extends State<Home> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
-                                              SizedBox(width: 4),
-
                                               // Income
                                               CountTile(
                                                   amount: _income,
                                                   color: color2,
                                                   title: 'Income'),
-                                              SizedBox(width: 10),
+                                              SizedBox(width: 5),
 
                                               // Expense
                                               CountTile(
                                                   amount: _expense,
                                                   color: color1,
                                                   title: 'Expense'),
-                                              SizedBox(width: 10),
+                                              SizedBox(width: 5),
 
                                               // Total
                                               CountTile(
                                                   amount: _total,
                                                   color: color3,
                                                   title: 'Total'),
-
-                                              SizedBox(width: 4),
                                             ],
                                           ),
                                           SizedBox(height: 15),
