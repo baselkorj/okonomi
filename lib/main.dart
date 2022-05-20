@@ -56,7 +56,7 @@ class _RestartWidgetState extends State<RestartWidget> {
                 theme: isDark.value ? ThemeData.dark() : ThemeData.light(),
                 darkTheme: isDark.value ? ThemeData.dark() : ThemeData.light(),
                 title: 'Okonomi Finance Manager',
-                home: SearchForm());
+                home: Home());
           }),
     );
   }
