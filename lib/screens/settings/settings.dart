@@ -11,8 +11,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  bool _darkMode = false;
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -48,7 +46,7 @@ class _SettingsState extends State<Settings> {
                             trailing: Switch(
                               activeColor: Color(color1),
                               onChanged: (bool value) => setState(() {
-                                isDark.value != isDark.value;
+                                isDark.value = !isDark.value;
                               }),
                               value: isDark.value,
                             )),
