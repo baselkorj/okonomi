@@ -56,83 +56,87 @@ class _ExportPageState extends State<ExportPage> {
             }),
 
         // Body
-        body: Container(
+        body: Align(
           alignment: FractionalOffset.topCenter,
-          width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
-          child: ListView(
-            shrinkWrap: true,
-            physics: BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-            children: [
-              // Export Format
-              Card(
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Format',
-                        style: TextStyle(
-                            color: Color(_color), fontWeight: FontWeight.w700),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          typeBox(0, color2, Icons.table_chart, 'CSV'),
-                          SizedBox(width: 10),
-                          typeBox(1, color1, Icons.article, 'PDF'),
-                          SizedBox(width: 10),
-                          typeBox(2, color4, Icons.grid_view_rounded, 'XLSX'),
-                        ],
-                      ),
-                    ],
+          child: Container(
+            width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
+            child: ListView(
+              shrinkWrap: true,
+              physics: BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              children: [
+                // Export Format
+                Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Format',
+                          style: TextStyle(
+                              color: Color(_color),
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            typeBox(0, color2, Icons.table_chart, 'CSV'),
+                            SizedBox(width: 10),
+                            typeBox(1, color1, Icons.article, 'PDF'),
+                            SizedBox(width: 10),
+                            typeBox(2, color4, Icons.grid_view_rounded, 'XLSX'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 10),
+                SizedBox(height: 10),
 
-              // Export Range
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Start Date
-                  dateSelect('Start', _startDate),
+                // Export Range
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Start Date
+                    dateSelect('Start', _startDate),
 
-                  // End Date
-                  dateSelect('End', _endDate)
-                ],
-              ),
-              SizedBox(height: 10),
+                    // End Date
+                    dateSelect('End', _endDate)
+                  ],
+                ),
+                SizedBox(height: 10),
 
-              // Export Type
-              Card(
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Export Type',
-                        style: TextStyle(
-                            color: Color(_color), fontWeight: FontWeight.w700),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          exportBox(
-                              0, _color, Icons.folder_open, 'Save to Device'),
-                          SizedBox(width: 10),
-                          exportBox(1, _color, Icons.reply, 'Share'),
-                        ],
-                      ),
-                    ],
+                // Export Type
+                Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Export Type',
+                          style: TextStyle(
+                              color: Color(_color),
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            exportBox(
+                                0, _color, Icons.folder_open, 'Save to Device'),
+                            SizedBox(width: 10),
+                            exportBox(1, _color, Icons.reply, 'Share'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ));
   }
