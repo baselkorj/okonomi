@@ -5,16 +5,13 @@ import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/models/global.dart';
 
 class DateDialog extends StatefulWidget {
-  var month;
-  var year;
-
-  DateDialog({this.month, this.year});
-
   @override
   _DateDialogState createState() => _DateDialogState();
 }
 
 class _DateDialogState extends State<DateDialog> {
+  int _month = currentDate.value.month;
+  int _year = currentDate.value.year;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -31,16 +28,16 @@ class _DateDialogState extends State<DateDialog> {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            if (widget.month != 12) {
-                              widget.month = widget.month + 1;
+                            if (_month != 12) {
+                              _month = _month + 1;
                             } else {
-                              widget.month = 1;
+                              _month = 1;
                             }
                           });
                         },
                         child: Icon(Icons.arrow_drop_up),
                         style: ElevatedButton.styleFrom(
-                            primary: Color(currentAccount.value.color)),
+                            backgroundColor: Color(currentAccount.value.color)),
                       ),
                       SizedBox(height: 10.0),
                       Container(
@@ -52,7 +49,7 @@ class _DateDialogState extends State<DateDialog> {
                         ),
                         child: Center(
                           child: Text(
-                            '${months[widget.month]}',
+                            '${months[_month]}',
                             style: TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w600,
@@ -64,16 +61,16 @@ class _DateDialogState extends State<DateDialog> {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            if (widget.month != 1) {
-                              widget.month--;
+                            if (_month != 1) {
+                              _month--;
                             } else {
-                              widget.month = 12;
+                              _month = 12;
                             }
                           });
                         },
                         child: Icon(Icons.arrow_drop_down),
                         style: ElevatedButton.styleFrom(
-                            primary: Color(currentAccount.value.color)),
+                            backgroundColor: Color(currentAccount.value.color)),
                       ),
                     ]),
               ),
@@ -88,12 +85,12 @@ class _DateDialogState extends State<DateDialog> {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            widget.year++;
+                            _year++;
                           });
                         },
                         child: Icon(Icons.arrow_drop_up),
                         style: ElevatedButton.styleFrom(
-                            primary: Color(currentAccount.value.color)),
+                            backgroundColor: Color(currentAccount.value.color)),
                       ),
                       SizedBox(height: 10.0),
                       Container(
@@ -108,7 +105,7 @@ class _DateDialogState extends State<DateDialog> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 12.0),
                             child: Text(
-                              '${widget.year}',
+                              '$_year',
                               style: TextStyle(
                                   fontSize: 48,
                                   fontWeight: FontWeight.w600,
@@ -121,12 +118,12 @@ class _DateDialogState extends State<DateDialog> {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            widget.year--;
+                            _year--;
                           });
                         },
                         child: Icon(Icons.arrow_drop_down),
                         style: ElevatedButton.styleFrom(
-                            primary: Color(currentAccount.value.color)),
+                            backgroundColor: Color(currentAccount.value.color)),
                       ),
                     ]),
               )
@@ -149,12 +146,12 @@ class _DateDialogState extends State<DateDialog> {
               SizedBox(width: 10.0),
               ElevatedButton(
                 onPressed: () {
-                  currentDate.value = [widget.month, widget.year];
+                  currentDate.value = DateTime.utc(_year, _month);
                   Navigator.pop(context);
                 },
                 child: Text('Ok'),
                 style: ElevatedButton.styleFrom(
-                    primary: Color(currentAccount.value.color)),
+                    backgroundColor: Color(currentAccount.value.color)),
               )
             ],
           )

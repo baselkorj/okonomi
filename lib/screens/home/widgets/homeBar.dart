@@ -8,17 +8,10 @@ import 'package:okonomi/screens/home/widgets/dateDialog.dart';
 import 'package:okonomi/screens/search/search_form.dart';
 
 class HomeBar extends StatelessWidget with PreferredSizeWidget {
-  final accountName;
-  final color;
   final currentMonth;
   final currentYear;
 
-  const HomeBar(
-      {Key? key,
-      this.accountName,
-      this.color,
-      this.currentMonth,
-      this.currentYear})
+  const HomeBar({Key? key, this.currentMonth, this.currentYear})
       : super(key: key);
 
   @override
@@ -28,23 +21,21 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
           isDark.value ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       iconTheme: IconThemeData(color: Color(color9)),
       backgroundColor: isDark.value ? Colors.grey[800] : Colors.white,
-      title: InkWell(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$accountName',
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(color: Color(color)),
-            ),
-            SizedBox(height: 1),
-            Text(
-              '${months[currentMonth]} ' '$currentYear',
-              style: TextStyle(color: Color(color8), fontSize: 14),
-            )
-          ],
-        ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${currentAccount.value.name}',
+            overflow: TextOverflow.fade,
+            softWrap: false,
+            style: TextStyle(color: Color(currentAccount.value.color)),
+          ),
+          SizedBox(height: 1),
+          Text(
+            '${months[currentDate.value.month]} ' '${currentDate.value.year}',
+            style: TextStyle(color: Color(color8), fontSize: 14),
+          )
+        ],
       ),
       actions: [
         IconButton(
@@ -58,10 +49,7 @@ class HomeBar extends StatelessWidget with PreferredSizeWidget {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return DateDialog(
-                    month: currentMonth,
-                    year: currentYear,
-                  );
+                  return DateDialog();
                 },
               );
             },

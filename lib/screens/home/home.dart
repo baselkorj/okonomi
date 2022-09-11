@@ -33,9 +33,6 @@ class _HomeState extends State<Home> {
 
   Map _currentDayMap = {};
 
-  int _currentMonth = currentDate.value[0];
-  int _currentYear = currentDate.value[1];
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -75,17 +72,9 @@ class _HomeState extends State<Home> {
             return ValueListenableBuilder(
                 valueListenable: currentDate,
                 builder: (context, value, _) {
-                  _currentMonth = currentDate.value[0];
-                  _currentYear = currentDate.value[1];
-
                   return Scaffold(
                     // App Bar
-                    appBar: HomeBar(
-                      accountName: currentAccount.value.name,
-                      color: currentAccount.value.color,
-                      currentMonth: _currentMonth,
-                      currentYear: _currentYear,
-                    ),
+                    appBar: HomeBar(),
 
                     drawer: Drawer(
                       child: Column(
@@ -253,10 +242,11 @@ class _HomeState extends State<Home> {
                               final filteredTransactions = currentTransactions
                                   .reversed
                                   .where((transaction) =>
-                                      transaction.dateTime.year == _currentYear)
+                                      transaction.dateTime.year ==
+                                      currentDate.value.year)
                                   .where((transaction) =>
                                       transaction.dateTime.month ==
-                                      _currentMonth)
+                                      currentDate.value.month)
                                   .toList();
 
                               if (filteredTransactions.isNotEmpty) {
@@ -321,7 +311,8 @@ class _HomeState extends State<Home> {
                                           SizedBox(height: 15),
                                           TransactionsList(
                                               currentDayMap: _currentDayMap,
-                                              currentMonth: _currentMonth),
+                                              currentMonth:
+                                                  currentDate.value.month),
                                           SizedBox(height: 125),
                                         ])));
                               } else {
