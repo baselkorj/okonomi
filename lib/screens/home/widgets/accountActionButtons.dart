@@ -20,8 +20,14 @@ class AccountActionButtons extends StatelessWidget {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => ExportPage()));
           },
-          label: Text('Export'),
-          icon: Icon(Icons.print),
+          label: Text(
+            'Export',
+            style: TextStyle(color: Colors.white),
+          ),
+          icon: Icon(
+            Icons.print,
+            color: Colors.white,
+          ),
           backgroundColor: Color(color1),
           elevation: 4,
         ),
@@ -34,8 +40,11 @@ class AccountActionButtons extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (context) => ManTransaction(currentState: 0)));
           },
-          label: Text('Transaction'),
-          icon: Icon(Icons.add),
+          label: Text(
+            'Transaction',
+            style: TextStyle(color: Colors.white),
+          ),
+          icon: Icon(Icons.add, color: Colors.white),
           backgroundColor: Color(color4),
           elevation: 4,
         ),
