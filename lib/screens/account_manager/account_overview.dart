@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/lists.dart';
 import 'package:okonomi/screens/account_manager/widgets/categoryBar.dart';
 import 'package:okonomi/screens/account_manager/widgets/categoryGrid.dart';
 import 'package:okonomi/screens/home/widgets/noInstance.dart';
+
+import '../../models/style.dart';
 
 class AccountOverview extends StatelessWidget {
   const AccountOverview({Key? key}) : super(key: key);
@@ -40,8 +43,27 @@ class AccountOverview extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${currentAccount.value.name} Account Overview'),
-        backgroundColor: Color(currentAccount.value.color),
+        systemOverlayStyle: isDark.value
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        iconTheme: IconThemeData(color: Color(color9)),
+        backgroundColor: isDark.value ? Colors.grey[800] : Colors.white,
+        title: Row(
+          children: [
+            Text(
+              '${currentAccount.value.name}   ',
+              style: TextStyle(
+                color: Color(currentAccount.value.color),
+              ),
+            ),
+            Text(
+              'Account Overview',
+              style: TextStyle(
+                color: Color(color8),
+              ),
+            ),
+          ],
+        ),
       ),
       body: currentTransactions.length != 0
           ? Align(
