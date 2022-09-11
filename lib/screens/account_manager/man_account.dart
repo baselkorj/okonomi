@@ -93,8 +93,7 @@ class _ManAccountState extends State<ManAccount> {
           // Body
           body: Container(
             alignment: FractionalOffset.topCenter,
-            width:
-                screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
+            width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               physics: BouncingScrollPhysics(),
@@ -116,8 +115,7 @@ class _ManAccountState extends State<ManAccount> {
                                 fontWeight: FontWeight.w700),
                           ),
                           SizedBox(height: 10),
-                          Focus(
-                              child: Builder(builder: (BuildContext context) {
+                          Focus(child: Builder(builder: (BuildContext context) {
                             final FocusNode focusNode = Focus.of(context);
                             final bool hasFocus = focusNode.hasFocus;
                             return TextFormField(
@@ -162,15 +160,12 @@ class _ManAccountState extends State<ManAccount> {
                                     builder: (BuildContext context) {
                                       final FocusNode focusNode =
                                           Focus.of(context);
-                                      final bool hasFocus =
-                                          focusNode.hasFocus;
+                                      final bool hasFocus = focusNode.hasFocus;
                                       return TextFormField(
-                                          initialValue:
-                                              widget.currentState == 0
-                                                  ? ''
-                                                  : _currentAccount
-                                                      .value.openAmount
-                                                      .toString(),
+                                          initialValue: widget.currentState == 0
+                                              ? ''
+                                              : _currentAccount.value.openAmount
+                                                  .toString(),
                                           style: textStyle(
                                               hasFocus, _currentColor),
                                           decoration: buildInputDecoration(
@@ -206,8 +201,8 @@ class _ManAccountState extends State<ManAccount> {
                                             return null;
                                           },
                                           onChanged: (val) => _currentAccount
-                                                  .value.openAmount =
-                                              double.parse(val));
+                                              .value
+                                              .openAmount = double.parse(val));
                                     },
                                   ),
                                 ),
@@ -236,15 +231,12 @@ class _ManAccountState extends State<ManAccount> {
                                     builder: (BuildContext context) {
                                       final FocusNode focusNode =
                                           Focus.of(context);
-                                      final bool hasFocus =
-                                          focusNode.hasFocus;
+                                      final bool hasFocus = focusNode.hasFocus;
                                       return TextFormField(
-                                          initialValue:
-                                              widget.currentState == 0
-                                                  ? ''
-                                                  : _currentAccount
-                                                      .value.goalLimit
-                                                      .toString(),
+                                          initialValue: widget.currentState == 0
+                                              ? ''
+                                              : _currentAccount.value.goalLimit
+                                                  .toString(),
                                           style: textStyle(
                                               hasFocus, _currentColor),
                                           decoration: buildInputDecoration(
@@ -401,22 +393,20 @@ class _ManAccountState extends State<ManAccount> {
     return AlertDialog(
       title: Text(
         'Caution!',
-        style: TextStyle(height: 1.5),
+        style: TextStyle(height: 1.5, color: Color(color1)),
       ),
       content: Text(
-        "Are you sure you want to delete this account? You won't be able to recover any data under it.",
-        style: TextStyle(color: Colors.black45),
-      ),
+          "Are you sure you want to delete this account? You won't be able to recover any data under it."),
       actions: <Widget>[
         TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.black54),
+              style: TextStyle(color: Color(color8)),
             )),
         ElevatedButton(
             child: Text('Delete', style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(primary: Color(color1)),
+            style: ElevatedButton.styleFrom(backgroundColor: Color(color1)),
             onPressed: () async {
               Navigator.pop(context);
               await deleteAccount(key);

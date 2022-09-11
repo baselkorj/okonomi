@@ -25,6 +25,13 @@ void updateStyle() {
   }
 }
 
+// Theme
+ThemeData okonomiTheme() {
+  return ThemeData(
+    brightness: isDark.value ? Brightness.dark : Brightness.light,
+  );
+}
+
 // Text Input
 InputDecoration buildInputDecoration(bool hasFocus, int color) {
   return InputDecoration(

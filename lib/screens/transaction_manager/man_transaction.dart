@@ -606,18 +606,17 @@ class _ManTransactionState extends State<ManTransaction> {
     return AlertDialog(
       title: Text(
         'Caution!',
-        style: TextStyle(height: 1.5),
+        style: TextStyle(height: 1.5, color: Color(color1)),
       ),
       content: Text(
         "Are you sure you want to delete this transaction?",
-        style: TextStyle(color: Colors.black45),
       ),
       actions: <Widget>[
         TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.black54),
+              style: TextStyle(color: Color(color8)),
             )),
         ElevatedButton(
             child: Text('Delete', style: TextStyle(color: Colors.white)),
