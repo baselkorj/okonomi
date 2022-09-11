@@ -22,8 +22,7 @@ ValueNotifier<Transaction> currentTransaction = ValueNotifier(Transaction()
 List<Transaction> currentTransactions = [];
 
 ValueNotifier currentCurrency = ValueNotifier('AED');
-ValueNotifier currentDate =
-    ValueNotifier([DateTime.now().month, DateTime.now().year]);
+ValueNotifier currentDate = ValueNotifier(DateTime.now());
 
 ValueNotifier isDark = ValueNotifier(false);
 
