@@ -250,10 +250,10 @@ class _ExportPageState extends State<ExportPage> {
               color: type == 0
                   ? _exportType == 0
                       ? Color(color)
-                      : Colors.grey
+                      : Color(color10)
                   : _exportType == 1
                       ? Color(color)
-                      : Colors.grey,
+                      : Color(color10),
               borderRadius: BorderRadius.circular(8)),
           child: Row(
             children: [
@@ -281,22 +281,22 @@ class _ExportPageState extends State<ExportPage> {
       if (_formatType == 0) {
         return Color(color2);
       } else {
-        return Colors.grey;
+        return Color(color10);
       }
     } else if (type == 1) {
       if (_formatType == 1) {
         return Color(color1);
       } else {
-        return Colors.grey;
+        return Color(color10);
       }
     } else if (type == 2) {
       if (_formatType == 2) {
         return Color(color4);
       } else {
-        return Colors.grey;
+        return Color(color10);
       }
     } else {
-      return Colors.grey;
+      return Color(color10);
     }
   }
 
