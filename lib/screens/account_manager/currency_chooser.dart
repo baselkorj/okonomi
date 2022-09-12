@@ -35,7 +35,7 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
               },
             ),
           ),
-          backgroundColor: Colors.black87,
+          backgroundColor: Colors.grey[800],
         ),
 
         // Currency List
@@ -44,7 +44,7 @@ class _CurrencyChooserState extends State<CurrencyChooser> {
           child: Container(
             width: screenWidth > 550 ? 550 : MediaQuery.of(context).size.width,
             child: _currentList.length == 0
-                ? NoInstance(object: 'Currencies')
+                ? NoInstance(object: 'currencies')
                 : Padding(
                     padding: const EdgeInsets.all(10),
                     child: Card(

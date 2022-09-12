@@ -4,7 +4,6 @@ import 'package:okonomi/models/global.dart';
 import 'package:okonomi/models/style.dart';
 import 'package:okonomi/screens/home/home.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:okonomi/screens/search/search_form.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

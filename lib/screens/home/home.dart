@@ -316,7 +316,7 @@ class _HomeState extends State<Home> {
                                           SizedBox(height: 125),
                                         ])));
                               } else {
-                                return NoInstance(object: 'Transactions');
+                                return NoInstance(object: 'transactions');
                               }
                             }),
                       ),

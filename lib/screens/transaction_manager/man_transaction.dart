@@ -194,7 +194,6 @@ class _ManTransactionState extends State<ManTransaction> {
                                         signed: false,
                                       ),
                                       maxLength: 10,
-                                      validator: (val) {},
                                       onChanged: (val) => _currentTransaction
                                           .value.amount = double.parse(val),
                                     );
@@ -232,7 +231,6 @@ class _ManTransactionState extends State<ManTransaction> {
                                         style: textStyle(hasFocus, _color),
                                         decoration: buildInputDecoration(
                                             hasFocus, _color),
-                                        validator: (val) {},
                                         onChanged: (val) => _currentTransaction
                                             .value.payee = val);
                                   }))
@@ -360,8 +358,9 @@ class _ManTransactionState extends State<ManTransaction> {
                                                                         .white)),
                                                             style: ElevatedButton
                                                                 .styleFrom(
-                                                                    primary: Color(
-                                                                        _color)),
+                                                                    backgroundColor:
+                                                                        Color(
+                                                                            _color)),
                                                             onPressed: () =>
                                                                 Navigator.pop(
                                                                     context)),
@@ -498,7 +497,6 @@ class _ManTransactionState extends State<ManTransaction> {
                                     style: textStyle(hasFocus, _color),
                                     decoration:
                                         buildInputDecoration(hasFocus, _color),
-                                    validator: (val) {},
                                     onChanged: (val) => setState(() =>
                                         _currentTransaction.value.note = val));
                               }))
@@ -617,7 +615,7 @@ class _ManTransactionState extends State<ManTransaction> {
             )),
         ElevatedButton(
             child: Text('Delete', style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(primary: Color(color1)),
+            style: ElevatedButton.styleFrom(backgroundColor: Color(color1)),
             onPressed: () async {
               Navigator.pop(context);
               await deleteTransaction(key);
